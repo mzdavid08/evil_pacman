@@ -14,11 +14,11 @@ var pink = new Image();
 var red = new Image();
 
 // Define element images
-pacman.src = "sprites/sprite_pacmana1_2.png";
-blue.src = "sprites/ghostb1.png";
-orange.src = "sprites/ghosto1.png";
-pink.src = "sprites/ghostp1.png";
-red.src = "sprites/ghostr1.png";
+pacman.src = "sprites/pacman_2.png";
+blue.src = "sprites/ghost_blue_up.png";
+orange.src = "sprites/ghost_orange_right.png";
+pink.src = "sprites/ghost_pink_up.png";
+red.src = "sprites/ghost_red_left.png";
 
 // Initialization function
 function start() {
@@ -111,19 +111,19 @@ function generateMaze(game) {
                     context.drawImage(pacman, j * width, i * height, height, height);
                     break;
                 case 'B':
-                    // Spawn pacman                    
+                    // Spawn blue ghost                    
                     context.drawImage(blue, j * width, i * height, height, height);
                     break;
                 case 'O':
-                    // Spawn pacman                    
+                    // Spawn orange ghost                    
                     context.drawImage(orange, j * width, i * height, height, height);
                     break;
                 case 'M':
-                    // Spawn pacman                    
+                    // Spawn pink ghost                    
                     context.drawImage(pink, j * width, i * height, height, height);
                     break;
                 case 'R':
-                    // Spawn pacman                    
+                    // Spawn red ghost                    
                     context.drawImage(red, j * width, i * height, height, height);
                     break;
             }
