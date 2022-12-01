@@ -17,6 +17,8 @@ function start() {
 
 // Generates the maze
 // game = canvas in document
+var pacman = document.createElement('img');
+pacman.src = "sprites/sprite_pacmana1_2.png";
 function generateMaze(game) {
     // Define maze as a matrix, where:
     // '.' = Normal Pellet
@@ -92,6 +94,8 @@ function generateMaze(game) {
                     context.fill();
                     context.closePath();    
                     break;
+                case 'S':                    
+                    context.drawImage(pacman, 0,0, 50, 50);
             }
         }
     }
