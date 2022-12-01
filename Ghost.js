@@ -1,7 +1,8 @@
 
-class Pacman {
+class Ghost {
 
-  constructor(i, j, width, height){
+  constructor(name, i, j, width, height, movingDir){
+    this.name = name;
     this.xGrid = j;
     this.yGrid = i;
     this.xCanvas = j*width;
@@ -9,8 +10,8 @@ class Pacman {
     this.speed = 5;
     this.width = width;
     this.height = height;
-    this.movingDir = 'R';
-    this.requestedDir = 'R';
+    this.movingDir = movingDir;
   }
+
 
 }
