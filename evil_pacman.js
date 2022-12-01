@@ -1,4 +1,4 @@
-/*
+/*/*
 	Team: Trifecta
     CSCI 445 Web Programming
     Section B
@@ -42,29 +42,21 @@ function generateMaze(game) {
     // ' ' = Empty Space
     // 'B', 'O', 'M', 'R' = Ghost Spawns
     // 'S' = Pacman Spawn
-    var maze = [['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
-                ['#', 'P', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '!', '#'],
-                ['#', '.', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '#', '#', '#', '#', '.', '#', '.', '.', '.', '#', '.', '#', '#', '#', '#', '#'],
-                ['X', 'X', 'X', 'X', '#', '.', '#', '#', '.', '#', '#', '.', '#', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', '#', '.', '#', '.', '.', '.', '#', '.', '#', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', '#', '.', '.', '.', '.', '.', '.', '.', '#', 'X', 'X', 'X', 'X'],
-                ['#', '#', '#', '#', '#', '.', '#', '#', 'B', '#', '#', '.', '#', '#', '#', '#', '#'],
-                ['C', ' ', ' ', ' ', ' ', '.', '#', 'O', 'M', 'R', '#', '.', ' ', ' ', ' ', ' ', 'C'],
-                ['#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#'],
-                ['X', 'X', 'X', 'X', '#', '.', '.', '.', '.', '.', '.', '.', '#', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', '#', '.', '#', '.', '.', '.', '#', '.', '#', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', '#', '.', '#', '#', '.', '#', '#', '.', '#', 'X', 'X', 'X', 'X'],
-                ['#', '#', '#', '#', '#', '.', '#', '.', '.', '.', '#', '.', '#', '#', '#', '#', '#'],
-                ['#', '!', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', 'P', '#'],
-                ['#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '.', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
+    var maze = [['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+                ['#', 'P', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
+                ['#', '.', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '.', '#'],
+                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+                ['#', '.', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '.', '#'],
+                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+                ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', 'B', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
+                ['C', '.', '#', 'X', 'X', 'X', '#', '.', '#', 'O', 'M', 'R', '#', '.', '#', 'X', 'X', 'X', '#', '.', 'C'],
+                ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
+                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+                ['#', '.', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '.', '#'],
+                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+                ['#', '.', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '.', '#'],
+                ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
+                ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
 
     // Determine size of each maze element
     var height = game.height / maze.length;
@@ -74,8 +66,8 @@ function generateMaze(game) {
     var context = game.getContext("2d");
 
     // Draw the maze
-    for (let i = 0; i <= maze.length; i++) {
-        for (let j = 0; j <= maze[i].length; j++) {
+    for (let i = 0; i < maze.length; i++) {
+        for (let j = 0; j < maze[i].length; j++) {
             switch (maze[i][j]) {
                 case '#':
                     // Draw wall
@@ -84,46 +76,46 @@ function generateMaze(game) {
                     break;
                 case '.':
                     // Draw normal pellet
-                    context.fillStyle = "white";
+                    context.fillStyle = "#ffe2db";
                     context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 12, width, height);
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height*2);
                     context.fill();
-                    context.closePath();    
+                    context.closePath();
                     break;
                 case 'P':
                     // Draw power pellet
                     context.fillStyle = "#F3AFF1";
                     context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height);
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height*2);
                     context.fill();
-                    context.closePath();    
+                    context.closePath();
                     break;
                 case '!':
                     // Draw poison pellet
                     context.fillStyle = "#79EC74";
                     context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height);
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height*2);
                     context.fill();
-                    context.closePath();    
+                    context.closePath();
                     break;
                 case 'S':
-                    // Spawn pacman                    
+                    // Spawn pacman
                     context.drawImage(pacman, j * width, i * height, height, height);
                     break;
                 case 'B':
-                    // Spawn blue ghost                    
+                    // Spawn blue ghost
                     context.drawImage(blue, j * width, i * height, height, height);
                     break;
                 case 'O':
-                    // Spawn orange ghost                    
+                    // Spawn orange ghost
                     context.drawImage(orange, j * width, i * height, height, height);
                     break;
                 case 'M':
-                    // Spawn pink ghost                    
+                    // Spawn pink ghost
                     context.drawImage(pink, j * width, i * height, height, height);
                     break;
                 case 'R':
-                    // Spawn red ghost                    
+                    // Spawn red ghost
                     context.drawImage(red, j * width, i * height, height, height);
                     break;
             }
