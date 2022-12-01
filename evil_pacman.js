@@ -6,6 +6,20 @@
 	Evil Pacman
 */
 
+// Create pacman and ghost elements
+var pacman = new Image();
+var blue = new Image();
+var orange = new Image();
+var pink = new Image();
+var red = new Image();
+
+// Define element images
+pacman.src = "sprites/sprite_pacmana1_2.png";
+blue.src = "sprites/ghostb1.png";
+orange.src = "sprites/ghosto1.png";
+pink.src = "sprites/ghostp1.png";
+red.src = "sprites/ghostr1.png";
+
 // Initialization function
 function start() {
     // Grab the game's canvas
@@ -17,8 +31,6 @@ function start() {
 
 // Generates the maze
 // game = canvas in document
-var pacman = document.createElement('img');
-pacman.src = "sprites/sprite_pacmana1_2.png";
 function generateMaze(game) {
     // Define maze as a matrix, where:
     // '.' = Normal Pellet
@@ -28,7 +40,7 @@ function generateMaze(game) {
     // 'X' = Inaccessible
     // 'C' = Shortcut
     // ' ' = Empty Space
-    // 'G' = Ghost Spawn
+    // 'B', 'O', 'M', 'R' = Ghost Spawns
     // 'S' = Pacman Spawn
     var maze = [['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
                 ['#', 'P', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '!', '#'],
@@ -40,8 +52,8 @@ function generateMaze(game) {
                 ['X', 'X', 'X', 'X', '#', '.', '#', '#', '.', '#', '#', '.', '#', 'X', 'X', 'X', 'X'],
                 ['X', 'X', 'X', 'X', '#', '.', '#', '.', '.', '.', '#', '.', '#', 'X', 'X', 'X', 'X'],
                 ['X', 'X', 'X', 'X', '#', '.', '.', '.', '.', '.', '.', '.', '#', 'X', 'X', 'X', 'X'],
-                ['#', '#', '#', '#', '#', '.', '#', '#', 'G', '#', '#', '.', '#', '#', '#', '#', '#'],
-                ['C', ' ', ' ', ' ', ' ', '.', '#', 'G', 'G', 'G', '#', '.', ' ', ' ', ' ', ' ', 'C'],
+                ['#', '#', '#', '#', '#', '.', '#', '#', 'B', '#', '#', '.', '#', '#', '#', '#', '#'],
+                ['C', ' ', ' ', ' ', ' ', '.', '#', 'O', 'M', 'R', '#', '.', ' ', ' ', ' ', ' ', 'C'],
                 ['#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#'],
                 ['X', 'X', 'X', 'X', '#', '.', '.', '.', '.', '.', '.', '.', '#', 'X', 'X', 'X', 'X'],
                 ['X', 'X', 'X', 'X', '#', '.', '#', '.', '.', '.', '#', '.', '#', 'X', 'X', 'X', 'X'],
@@ -94,8 +106,26 @@ function generateMaze(game) {
                     context.fill();
                     context.closePath();    
                     break;
-                case 'S':                    
-                    context.drawImage(pacman, 0,0, 50, 50);
+                case 'S':
+                    // Spawn pacman                    
+                    context.drawImage(pacman, j * width, i * height, height, height);
+                    break;
+                case 'B':
+                    // Spawn pacman                    
+                    context.drawImage(blue, j * width, i * height, height, height);
+                    break;
+                case 'O':
+                    // Spawn pacman                    
+                    context.drawImage(orange, j * width, i * height, height, height);
+                    break;
+                case 'M':
+                    // Spawn pacman                    
+                    context.drawImage(pink, j * width, i * height, height, height);
+                    break;
+                case 'R':
+                    // Spawn pacman                    
+                    context.drawImage(red, j * width, i * height, height, height);
+                    break;
             }
         }
     }
