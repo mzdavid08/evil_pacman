@@ -83,40 +83,17 @@ function generateMaze() {
     // Get the game's 2D context
     context = game.getContext("2d");
 
-    // Draw the maze
+    // Initialize important elements
     for (let i = 0; i < maze.length; i++) {
         for (let j = 0; j < maze[i].length; j++) {
             switch (maze[i][j]) {
                 case '#':
-                    // Draw wall
-                    context.fillStyle = "#0000FF";
-                    context.fillRect(j * width, i * height, width, height);
-                    walls.add([j * width, i * height]); // Add the wall coordinates to the set of walls
+                    // Add the wall coordinates to the set of walls
+                    walls.add([j * width, i * height]);
                     break;
                 case '.':
-                    // Draw normal pellet
-                    context.fillStyle = "#ffe2db";
-                    context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height * 2);
-                    context.fill();
-                    context.closePath();
+                    // Increment the total number of pellets
                     numPellets++; // Increment the total number of pellets
-                    break;
-                case 'P':
-                    // Draw power pellet
-                    context.fillStyle = "#F3AFF1";
-                    context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
-                    context.fill();
-                    context.closePath();
-                    break;
-                case '!':
-                    // Draw poison pellet
-                    context.fillStyle = "#79EC74";
-                    context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
-                    context.fill();
-                    context.closePath();
                     break;
                 case 'S':
                     // Spawn pacman
