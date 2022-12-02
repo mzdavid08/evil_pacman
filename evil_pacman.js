@@ -45,6 +45,9 @@ function start() {
     // Generate the maze using the game
     generateMaze();
     redraw();
+
+    // Add event listener for WASD/arrow keys
+    document.addEventListener("keydown", movePacman, false);
 }
 
 // Generates the maze
@@ -178,4 +181,21 @@ function redraw() {
     context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
     context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
     context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
+}
+
+// Moves Pacman
+function movePacman(event) {
+    // Move based on key pressed
+    if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
+        pacman.move("left");
+    } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
+        pacman.move("right");
+    } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
+        pacman.move("up");
+    } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
+        pacman.move("down");
+    }
+
+    // Redraw the map
+    redraw();
 }
