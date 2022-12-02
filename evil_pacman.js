@@ -1,4 +1,4 @@
-/*/*
+/*
 	Team: Trifecta
     CSCI 445 Web Programming
     Section B
@@ -6,7 +6,7 @@
 	Evil Pac-Man
 */
 
-//Create pacman and ghost objects
+// Create pacman and ghost objects
 var pacman;
 var blue;
 var orange;
@@ -20,11 +20,13 @@ var orange_img = new Image();
 var pink_img = new Image();
 var red_img = new Image();
 
+// Create game elements
 var game;
 var maze;
 var width;
 var height;
 var context;
+var walls = new Set();
 
 // Define element images
 pacman_img.src = "sprites/pacman_2.png";
@@ -87,6 +89,7 @@ function generateMaze() {
                     // Draw wall
                     context.fillStyle = "#0000FF";
                     context.fillRect(j * width, i * height, width, height);
+                    walls.add([j * width, i * height]); // Add the wall coordinates to the set of walls
                     break;
                 case '.':
                     // Draw normal pellet
@@ -115,31 +118,26 @@ function generateMaze() {
                 case 'S':
                     // Spawn pacman
                     pacman = new Pacman(i, j, width, height);
-                    context.drawImage(pacman_img, j * width, i * height, height, height);
                     maze[i][j] = ' ';
                     break;
                 case 'B':
                     // Spawn blue ghost
                     blue = new Ghost("Blue", i, j, width, height, 'U');
-                    context.drawImage(blue_img, j * width, i * height, height, height);
                     maze[i][j] = ' ';
                     break;
                 case 'O':
                     // Spawn orange ghost
                     orange = new Ghost("Orange", i, j, width, height, 'R');
-                    context.drawImage(orange_img, j * width, i * height, height, height);
                     maze[i][j] = ' ';
                     break;
                 case 'M':
                     // Spawn pink ghost
                     pink = new Ghost("Pink", i, j, width, height, 'U');
-                    context.drawImage(pink_img, j * width, i * height, height, height);
                     maze[i][j] = ' ';
                     break;
                 case 'R':
                     // Spawn red ghost
                     red = new Ghost("Red", i, j, width, height, 'L');
-                    context.drawImage(red_img, j * width, i * height, height, height);
                     maze[i][j] = ' ';
                     break;
             }
@@ -184,10 +182,11 @@ function generateMaze() {
               }
           }
       }
-      context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, height, height);
+
+      // Spawn all elements
+      context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
       context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
       context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
       context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
       context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
-
 }
