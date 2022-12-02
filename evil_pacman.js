@@ -1,9 +1,9 @@
 /*
-	Team: Trifecta
+    Team: Trifecta
     CSCI 445 Web Programming
     Section B
 
-	Evil Pac-Man
+    Evil Pac-Man
 */
 
 // Create pacman and ghost objects
@@ -26,6 +26,8 @@ var maze;
 var width;
 var height;
 var context;
+var score;
+var numPellets = 0;
 var walls = new Set();
 
 // Define element images
@@ -59,20 +61,20 @@ function generateMaze() {
     // 'B', 'O', 'M', 'R' = Ghost Spawns
     // 'S' = Pacman Spawn
     maze = [['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
-                ['#', 'P', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
-                ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.',  '.','.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', 'B', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
-                ['C', '.', '#', 'X', 'X', 'X', 'X', '#', '.', '#', 'O', 'M', 'R', '#', '.', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
-                ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-                ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
-                ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-                ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
-                ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
+    ['#', 'P', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', 'B', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['C', '.', '#', 'X', 'X', 'X', 'X', '#', '.', '#', 'O', 'M', 'R', '#', '.', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
+    ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
 
     // Determine size of each maze element
     height = game.height / maze.length;
@@ -95,15 +97,16 @@ function generateMaze() {
                     // Draw normal pellet
                     context.fillStyle = "#ffe2db";
                     context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height*2);
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height * 2);
                     context.fill();
                     context.closePath();
+                    numPellets++; // Increment the total number of pellets
                     break;
                 case 'P':
                     // Draw power pellet
                     context.fillStyle = "#F3AFF1";
                     context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height*2);
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
                     context.fill();
                     context.closePath();
                     break;
@@ -111,7 +114,7 @@ function generateMaze() {
                     // Draw poison pellet
                     context.fillStyle = "#79EC74";
                     context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height*2);
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
                     context.fill();
                     context.closePath();
                     break;
@@ -145,48 +148,57 @@ function generateMaze() {
     }
 }
 
-    function redraw(){
-      context.clearRect(0, 0, game.width, game.height);
-      for (let i = 0; i < maze.length; i++) {
-          for (let j = 0; j < maze[i].length; j++) {
-              switch (maze[i][j]) {
-                  case '#':
-                      // Draw wall
-                      context.fillStyle = "blue";
-                      context.fillRect(j * width, i * height, width, height);
-                      break;
-                  case '.':
-                      // Draw normal pellet
-                      context.fillStyle = "#ffe2db";
-                      context.beginPath();
-                      context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height*2);
-                      context.fill();
-                      context.closePath();
-                      break;
-                  case 'P':
-                      // Draw power pellet
-                      context.fillStyle = "#F3AFF1";
-                      context.beginPath();
-                      context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height*2);
-                      context.fill();
-                      context.closePath();
-                      break;
-                  case '!':
-                      // Draw poison pellet
-                      context.fillStyle = "#79EC74";
-                      context.beginPath();
-                      context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height*2);
-                      context.fill();
-                      context.closePath();
-                      break;
-              }
-          }
-      }
+function redraw() {
+    context.clearRect(0, 0, game.width, game.height);
+    var pelletsLeft = 0; // Using to keep track of score
+    for (let i = 0; i < maze.length; i++) {
+        for (let j = 0; j < maze[i].length; j++) {
+            switch (maze[i][j]) {
+                case '#':
+                    // Draw wall
+                    context.fillStyle = "blue";
+                    context.fillRect(j * width, i * height, width, height);
+                    break;
+                case '.':
+                    // Draw normal pellet
+                    context.fillStyle = "#ffe2db";
+                    context.beginPath();
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height * 2);
+                    context.fill();
+                    context.closePath();
+                    pelletsLeft++; // Keep track of remaining pellets
+                    break;
+                case 'P':
+                    // Draw power pellet
+                    context.fillStyle = "#F3AFF1";
+                    context.beginPath();
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
+                    context.fill();
+                    context.closePath();
+                    break;
+                case '!':
+                    // Draw poison pellet
+                    context.fillStyle = "#79EC74";
+                    context.beginPath();
+                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
+                    context.fill();
+                    context.closePath();
+                    break;
+            }
+        }
+    }
 
-      // Spawn all elements
-      context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
-      context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
-      context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
-      context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
-      context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
+    // Calculate score and determine if the game is won
+    score = numPellets - pelletsLeft;
+    if (pelletsLeft == 0) {
+        // TODO: Game win behavior
+        alert("Congrats! You've won Evil Pac-Man!");
+    }
+
+    // Spawn all elements
+    context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
+    context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
+    context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
+    context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
+    context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
 }
