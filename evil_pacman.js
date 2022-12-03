@@ -48,6 +48,13 @@ function start() {
 
     // Add event listener for WASD/arrow keys
     document.addEventListener("keydown", movePacman, false);
+
+    // Prevent arrows from scrolling window
+    window.addEventListener("keydown", function (e) {
+        if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+            e.preventDefault();
+        }
+    }, false);
 }
 
 // Generates the maze
@@ -187,22 +194,71 @@ function redraw() {
 function movePacman(event) {
     // Move based on key pressed
     if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
-        pacman.move("left");
+        // Check bounds and obtain speed needed
+        speed = checkBounds(pacman, "left");
+        pacman.move("left", speed);
     } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-        pacman.move("right");
+        // Check bounds and obtain speed needed
+        speed = checkBounds(pacman, "right");
+        pacman.move("right", speed);
     } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
-        pacman.move("up");
+        // Check bounds and obtain speed needed
+        speed = checkBounds(pacman, "up");
+        pacman.move("up", speed);
     } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
-        pacman.move("down");
+        // Check bounds and obtain speed needed
+        speed = checkBounds(pacman, "down");
+        pacman.move("down", speed);
     }
 
     // Redraw the map
     redraw();
 }
 
-// Prevent arrows from scrolling window
-window.addEventListener("keydown", function(e) {
-    if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
-        e.preventDefault();
+// Checks bounds of any object
+function checkBounds(object, direction, speed = object.speed) {
+    // Check if speed is zero
+    if (speed <= 0) {
+        return 0;
     }
-}, false);
+
+    // Translate object
+    var xCoord = object.xCanvas;
+    var yCoord = object.yCanvas;
+    switch (direction) {
+        case "left":
+            xCoord -= speed;
+            break;
+        case "right":
+            xCoord += speed;
+            break;
+        case "up":
+            yCoord -= speed;
+            break;
+        case "down":
+            yCoord += speed;
+            break;
+    }
+
+    // Iterate through walls
+    for (var it = walls.values(), val = null; val = it.next().value;) {
+        // Grab coordinates
+        var xWall = val[0];
+        var yWall = val[1];
+
+        // Define bound checks
+        let leftCheck = xWall >= (xCoord + object.width);
+        let rightCheck = (xWall + width) <= xCoord;
+        let topCheck = yWall >= (yCoord + object.height);
+        let bottomCheck = (yWall + height) <= yCoord;
+
+        // Check if any bound check isn't true
+        if (!(leftCheck || rightCheck || topCheck || bottomCheck)) {
+            // Recursively call the function again and decrement the speed
+            return checkBounds(object, direction, speed - 0.1);
+        }
+    }
+
+    // Return the final speed
+    return speed;
+}

@@ -14,21 +14,21 @@ class Ghost {
   }
 
   // Moves object
-  move(axis) {
-    switch (axis) {
+  move(direction, speed) {
+    switch (direction) {
       case "left":
-        this.xCanvas -= this.speed;
+        this.xCanvas -= speed;
         break;
       case "right":
-        this.xCanvas += this.speed;
+        this.xCanvas += speed;
         break;
       case "up":
-        this.yCanvas -= this.speed;
+        this.yCanvas -= speed;
         break;
       case "down":
-        this.yCanvas += this.speed;
+        this.yCanvas += speed;
         break;
     }
   }
-
+  
 }
