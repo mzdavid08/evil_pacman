@@ -199,3 +199,10 @@ function movePacman(event) {
     // Redraw the map
     redraw();
 }
+
+// Prevent arrows from scrolling window
+window.addEventListener("keydown", function(e) {
+    if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+        e.preventDefault();
+    }
+}, false);
