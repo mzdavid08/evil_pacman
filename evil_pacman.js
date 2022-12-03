@@ -196,19 +196,27 @@ function movePacman(event) {
     if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
         // Check bounds and obtain speed needed
         speed = checkBounds(pacman, "left");
-        pacman.move("left", speed);
+        //pacman.move("left", speed);
+        pacman.speed = speed;
+        pacman.movingDir = "left";
     } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
         // Check bounds and obtain speed needed
         speed = checkBounds(pacman, "right");
-        pacman.move("right", speed);
+        //pacman.move("right", speed);
+        pacman.speed = speed;
+        pacman.movingDir = "right";
     } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
         // Check bounds and obtain speed needed
         speed = checkBounds(pacman, "up");
-        pacman.move("up", speed);
+        pacman.speed = speed;
+        //pacman.move("up", speed);
+        pacman.movingDir = "up";
     } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
         // Check bounds and obtain speed needed
         speed = checkBounds(pacman, "down");
-        pacman.move("down", speed);
+        pacman.speed = speed;
+        //pacman.move("down", speed);
+        pacman.movingDir = "down";
     }
 
     // Redraw the map
@@ -262,3 +270,12 @@ function checkBounds(object, direction, speed = object.speed) {
     // Return the final speed
     return speed;
 }
+
+
+function animate(){
+    requestAnimationFrame(animate);
+    pacman.move(pacman.movingDir);
+    redraw();
+    context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
+}
+animate();

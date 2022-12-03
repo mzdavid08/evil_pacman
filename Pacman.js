@@ -9,24 +9,24 @@ class Pacman {
     this.speed = 5;
     this.width = width;
     this.height = height;
-    this.movingDir = 'R';
+    this.movingDir = 'right';
     this.requestedDir = 'R';
   }
 
   // Moves object
-  move(direction, speed) {
+  move(direction) {
     switch (direction) {
       case "left":
-        this.xCanvas -= speed;
+        this.xCanvas -= this.speed;
         break;
       case "right":
-        this.xCanvas += speed;
+        this.xCanvas += this.speed;
         break;
       case "up":
-        this.yCanvas -= speed;
+        this.yCanvas -= this.speed;
         break;
       case "down":
-        this.yCanvas += speed;
+        this.yCanvas += this.speed;
         break;
     }
   }
