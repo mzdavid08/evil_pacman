@@ -275,6 +275,7 @@ function checkBounds(object, direction, speed = object.speed) {
 
 
 function animate(){
+    pacman.speed = checkBounds(pacman, pacman.movingDir);
     requestAnimationFrame(animate);
     pacman.move(pacman.movingDir);
     redraw();
