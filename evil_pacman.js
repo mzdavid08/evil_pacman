@@ -55,6 +55,8 @@ function start() {
             e.preventDefault();
         }
     }, false);
+
+    animate();
 }
 
 // Generates the maze
@@ -278,4 +280,3 @@ function animate(){
     redraw();
     context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
 }
-animate();
