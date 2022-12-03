@@ -29,6 +29,9 @@ var context;
 var score;
 var numPellets = 0;
 var walls = new Set();
+var tol = 0.1;
+var pacmanDir = null;
+var objSpeed = 2;
 
 // Define element images
 pacman_img.src = "sprites/pacman_2.png";
@@ -47,7 +50,10 @@ function start() {
     redraw();
 
     // Add event listener for WASD/arrow keys
-    document.addEventListener("keydown", movePacman, false);
+    document.addEventListener("keydown", noteDir, false);
+
+    // Move pacman infinitely
+    setTimeout(movePacman(pacmanDir), 1000)
 
     // Prevent arrows from scrolling window
     window.addEventListener("keydown", function (e) {
@@ -55,6 +61,9 @@ function start() {
             e.preventDefault();
         }
     }, false);
+    
+    // Animate the movement
+    animate();
 }
 
 // Generates the maze
@@ -107,27 +116,27 @@ function generateMaze() {
                     break;
                 case 'S':
                     // Spawn pacman
-                    pacman = new Pacman(i, j, width, height);
+                    pacman = new Pacman(i, j, width, height, objSpeed);
                     maze[i][j] = ' ';
                     break;
                 case 'B':
                     // Spawn blue ghost
-                    blue = new Ghost("Blue", i, j, width, height, 'U');
+                    blue = new Ghost("Blue", i, j, width, height, objSpeed, 'U');
                     maze[i][j] = ' ';
                     break;
                 case 'O':
                     // Spawn orange ghost
-                    orange = new Ghost("Orange", i, j, width, height, 'R');
+                    orange = new Ghost("Orange", i, j, width, height, objSpeed, 'R');
                     maze[i][j] = ' ';
                     break;
                 case 'M':
                     // Spawn pink ghost
-                    pink = new Ghost("Pink", i, j, width, height, 'U');
+                    pink = new Ghost("Pink", i, j, width, height, objSpeed, 'U');
                     maze[i][j] = ' ';
                     break;
                 case 'R':
                     // Spawn red ghost
-                    red = new Ghost("Red", i, j, width, height, 'L');
+                    red = new Ghost("Red", i, j, width, height, objSpeed, 'L');
                     maze[i][j] = ' ';
                     break;
             }
@@ -135,6 +144,7 @@ function generateMaze() {
     }
 }
 
+// Redraw the map
 function redraw() {
     context.clearRect(0, 0, game.width, game.height);
     var pelletsLeft = 0; // Using to keep track of score
@@ -190,25 +200,30 @@ function redraw() {
     context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
 }
 
-// Moves Pacman
-function movePacman(event) {
-    // Move based on key pressed
+// Keeps track of last key pressed
+function noteDir(event) {
+    // Keep track of last direction
     if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "left");
-        pacman.move("left", speed);
+        pacmanDir = "left";
     } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "right");
-        pacman.move("right", speed);
+        pacmanDir = "right";
     } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "up");
-        pacman.move("up", speed);
+        pacmanDir = "up";
     } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "down");
-        pacman.move("down", speed);
+        pacmanDir = "down";
+    }
+}
+
+// Moves Pacman
+function movePacman(pacmanDir) {
+    // Move based on last direction
+    switch(pacmanDir) {
+        case null:
+            break;
+        default:
+            speed = checkBounds(pacman, pacmanDir);
+            pacman.move(pacmanDir, speed);
+            break;
     }
 
     // Redraw the map
@@ -255,10 +270,17 @@ function checkBounds(object, direction, speed = object.speed) {
         // Check if any bound check isn't true
         if (!(leftCheck || rightCheck || topCheck || bottomCheck)) {
             // Recursively call the function again and decrement the speed
-            return checkBounds(object, direction, speed - 0.1);
+            return checkBounds(object, direction, speed - tol);
         }
     }
 
     // Return the final speed
     return speed;
+}
+
+// Animates all movement
+function animate(){
+    requestAnimationFrame(animate);
+    movePacman(pacmanDir);
+    redraw();
 }

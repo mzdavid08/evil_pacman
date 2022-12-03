@@ -1,12 +1,12 @@
 
 class Pacman {
 
-  constructor(i, j, width, height) {
+  constructor(i, j, width, height, speed) {
     this.xGrid = j;
     this.yGrid = i;
     this.xCanvas = j * width;
     this.yCanvas = i * height;
-    this.speed = 5;
+    this.speed = speed;
     this.width = width;
     this.height = height;
     this.movingDir = 'R';
