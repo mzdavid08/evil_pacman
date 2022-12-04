@@ -14,7 +14,9 @@ var pink;
 var red;
 
 // Create images
-var pacman_img = new Image();
+var pacman_img_1 = new Image();
+var pacman_img_2 = new Image();
+var pacman_img_3 = new Image();
 var blue_img = new Image();
 var orange_img = new Image();
 var pink_img = new Image();
@@ -35,7 +37,9 @@ var pacmanPhase = pacmanAnimateSpeed;
 var pausePacman = true;
 
 // Define element images
-pacman_img.src = "sprites/pacman_2.png";
+pacman_img_1.src = "sprites/pacman_1.png";
+pacman_img_2.src = "sprites/pacman_2.png";
+pacman_img_3.src = "sprites/pacman_3.png";
 blue_img.src = "sprites/ghost_blue_up.png";
 orange_img.src = "sprites/ghost_orange_right.png";
 pink_img.src = "sprites/ghost_pink_up.png";
@@ -126,7 +130,7 @@ function generateMaze() {
                     break;
                 case 'S':
                     // Spawn pacman
-                    pacman = new Pacman(i, j, width, height, objSpeed);
+                    pacman = new Pacman(i, j, width, height, objSpeed, pacman_img_2);
                     maze[i][j] = ' ';
                     break;
                 case 'B':
@@ -198,7 +202,7 @@ function redraw() {
     context.save()
     context.translate(pacman.xCanvas, pacman.yCanvas);
     context.rotate(-pacman.angle);
-    context.drawImage(pacman_img, pacman.xTrans, pacman.yTrans, pacman.width, pacman.height);
+    context.drawImage(pacman.img, pacman.xTrans, pacman.yTrans, pacman.width, pacman.height);
     context.restore();
     context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
     context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
@@ -247,18 +251,18 @@ function movePacman() {
             if (!pausePacman){
               pacmanPhase++;
               if (pacmanPhase < pacmanAnimateSpeed){
-                pacman_img.src = "sprites/pacman_1.png";
+                pacman.img = pacman_img_1;
               }
               else if (pacmanPhase < pacmanAnimateSpeed*2 || (pacmanPhase >= pacmanAnimateSpeed*3 && pacmanPhase < pacmanAnimateSpeed*4)){
-                pacman_img.src = "sprites/pacman_2.png";
+                pacman.img = pacman_img_2;
               }
 
               else if (pacmanPhase < pacmanAnimateSpeed*3){
-                pacman_img.src = "sprites/pacman_3.png";
+                pacman.img = pacman_img_3;
               }
               else{
                 pacmanPhase = 0;
-                pacman_img.src = "sprites/pacman_1.png";
+                pacman.img = pacman_img_1;
               }
             }
             break;

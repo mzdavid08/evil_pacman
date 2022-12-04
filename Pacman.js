@@ -1,11 +1,12 @@
 
 class Pacman {
 
-  constructor(i, j, width, height, speed) {
+  constructor(i, j, width, height, speed, img) {
     this.xGrid = j;
     this.yGrid = i;
     this.xCanvas = j * width;
     this.yCanvas = i * height;
+    this.img = img;
     this.speed = speed
     this.angle = 0;
     this.xTrans = 0;
