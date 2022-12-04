@@ -21,13 +21,10 @@ var pink_img = new Image();
 var red_img = new Image();
 
 // Create game elements
-var game;
-var maze;
-var width;
-var height;
-var context;
-var score;
-var numPellets = 0;
+var game, maze, width, height, context;
+var score = 0;
+var pellets = new Set();
+var poisonPellets = 0;
 var walls = new Set();
 var tol = 0.1;
 var pacmanDir = null;
@@ -111,8 +108,17 @@ function generateMaze() {
                     walls.add([j * width, i * height]);
                     break;
                 case '.':
-                    // Increment the total number of pellets
-                    numPellets++; // Increment the total number of pellets
+                    // Add normal pellets to set of pellets
+                    pellets.add([j, i, "normal"]);
+                    break;
+                case '!':
+                    // Add poison pellets to set of pellets
+                    pellets.add([j, i, "poison"]);
+                    poisonPellets++;
+                    break;
+                case 'P':
+                    // Add power pellets to set of pellets
+                    pellets.add([j, i, "power"]);
                     break;
                 case 'S':
                     // Spawn pacman
@@ -163,7 +169,6 @@ function redraw() {
                     context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height * 2);
                     context.fill();
                     context.closePath();
-                    pelletsLeft++; // Keep track of remaining pellets
                     break;
                 case 'P':
                     // Draw power pellet
@@ -183,13 +188,6 @@ function redraw() {
                     break;
             }
         }
-    }
-
-    // Calculate score and determine if the game is won
-    score = numPellets - pelletsLeft;
-    if (pelletsLeft == 0) {
-        // TODO: Game win behavior
-        alert("Congrats! You've won Evil Pac-Man!");
     }
 
     // Spawn all elements
@@ -278,9 +276,82 @@ function checkBounds(object, direction, speed = object.speed) {
     return speed;
 }
 
+// Checks pellet collision
+function checkPellets(object) {
+    // Check if game is won, whereas pellets left should be poison pellets
+    if (pellets.size == poisonPellets) {
+        gameWon();
+    }
+
+    // Iterate through pellets
+    for (var it = pellets.values(), val = null; val = it.next().value;) {
+        // Grab coordinates
+        var j = val[0];
+        var i = val[1];
+        var type = val[2];
+
+        // Define canvas elements
+        // context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
+        var radius;
+        switch(type) {
+            case "normal":
+                radius = height / 12;
+                break;
+            default:
+                radius = height / 6;
+                break;
+        }
+        var xPellet = j * width + (width / 2) - radius;
+        var yPellet = i * height + (width / 2) - radius;
+        var diameter = 2 * radius;
+
+        // Define bound checks
+        let leftCheck = xPellet >= (object.xCanvas + object.width);
+        let rightCheck = (xPellet + diameter) <= object.xCanvas;
+        let topCheck = yPellet >= (object.yCanvas + object.height);
+        let bottomCheck = (yPellet + diameter) <= object.yCanvas;
+
+        // Check if any bound check isn't true
+        if (!(leftCheck || rightCheck || topCheck || bottomCheck)) {
+            // Action based on type
+            switch(type) {
+                case "normal":
+                    score++;
+                    break;
+                case "power":
+                    score++;
+                    powerPellet();
+                    break;
+                case "poison":
+                    gameOver();
+                    break;
+            }
+            // Remove pellet from maze and set
+            maze[i][j] = ' ';
+            pellets.delete(val);
+        }
+    }
+}
+
+// Game won!
+function powerPellet() {
+    // TODO: Something if the power pellet is won
+}
+
+// Game won!
+function gameWon() {
+    // TODO: Game win functionality
+}
+
+// Game over
+function gameOver() {
+    // TODO: Game loss functionality
+}
+
 // Animates all movement
 function animate(){
     requestAnimationFrame(animate);
     movePacman(pacmanDir);
+    checkPellets(pacman);
     redraw();
 }
