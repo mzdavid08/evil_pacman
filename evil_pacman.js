@@ -30,7 +30,9 @@ var tol = 0.1;
 var pacmanDir = null;
 var requestedDir = null;
 var objSpeed = 2;
-var pacmanAnimate = 0;
+var pacmanAnimateSpeed = 3;
+var pacmanPhase = pacmanAnimateSpeed;
+var pausePacman = true;
 
 // Define element images
 pacman_img.src = "sprites/pacman_2.png";
@@ -193,7 +195,11 @@ function redraw() {
     }
 
     // Spawn all elements
-    context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
+    context.save()
+    context.translate(pacman.xCanvas, pacman.yCanvas);
+    context.rotate(-pacman.angle);
+    context.drawImage(pacman_img, pacman.xTrans, pacman.yTrans, pacman.width, pacman.height);
+    context.restore();
     context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
     context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
     context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
@@ -224,11 +230,37 @@ function movePacman() {
             speed = checkBounds(pacman, requestedDir);
             if (speed > 0){
               pacmanDir = requestedDir;
+              pausePacman = false;
             }
             else{
               speed = checkBounds(pacman, pacmanDir);
+              if (speed <= 0){
+                pausePacman = true;
+              }
+              else{
+                pausePacman = false;
+              }
             }
             pacman.move(pacmanDir, speed);
+
+            //Animate pacman if he is not paused
+            if (!pausePacman){
+              pacmanPhase++;
+              if (pacmanPhase < pacmanAnimateSpeed){
+                pacman_img.src = "sprites/pacman_1.png";
+              }
+              else if (pacmanPhase < pacmanAnimateSpeed*2 || (pacmanPhase >= pacmanAnimateSpeed*3 && pacmanPhase < pacmanAnimateSpeed*4)){
+                pacman_img.src = "sprites/pacman_2.png";
+              }
+
+              else if (pacmanPhase < pacmanAnimateSpeed*3){
+                pacman_img.src = "sprites/pacman_3.png";
+              }
+              else{
+                pacmanPhase = 0;
+                pacman_img.src = "sprites/pacman_1.png";
+              }
+            }
             break;
     }
     // Redraw the map
