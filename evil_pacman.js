@@ -14,7 +14,9 @@ var pink;
 var red;
 
 // Create images
-var pacman_img = new Image();
+var pacman_img_1 = new Image();
+var pacman_img_2 = new Image();
+var pacman_img_3 = new Image();
 var blue_img = new Image();
 var orange_img = new Image();
 var pink_img = new Image();
@@ -28,10 +30,16 @@ var poisonPellets = 0;
 var walls = new Set();
 var tol = 0.1;
 var pacmanDir = null;
+var requestedDir = null;
 var objSpeed = 2;
+var pacmanAnimateSpeed = 3;
+var pacmanPhase = pacmanAnimateSpeed;
+var pausePacman = true;
 
 // Define element images
-pacman_img.src = "sprites/pacman_2.png";
+pacman_img_1.src = "sprites/pacman_1.png";
+pacman_img_2.src = "sprites/pacman_2.png";
+pacman_img_3.src = "sprites/pacman_3.png";
 blue_img.src = "sprites/ghost_blue_up.png";
 orange_img.src = "sprites/ghost_orange_right.png";
 pink_img.src = "sprites/ghost_pink_up.png";
@@ -58,7 +66,7 @@ function start() {
             e.preventDefault();
         }
     }, false);
-    
+
     // Animate the movement
     animate();
 }
@@ -122,7 +130,7 @@ function generateMaze() {
                     break;
                 case 'S':
                     // Spawn pacman
-                    pacman = new Pacman(i, j, width, height, objSpeed);
+                    pacman = new Pacman(i, j, width, height, objSpeed, pacman_img_2);
                     maze[i][j] = ' ';
                     break;
                 case 'B':
@@ -191,7 +199,11 @@ function redraw() {
     }
 
     // Spawn all elements
-    context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
+    context.save()
+    context.translate(pacman.xCanvas, pacman.yCanvas);
+    context.rotate(-pacman.angle);
+    context.drawImage(pacman.img, pacman.xTrans, pacman.yTrans, pacman.width, pacman.height);
+    context.restore();
     context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
     context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
     context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
@@ -202,28 +214,59 @@ function redraw() {
 function noteDir(event) {
     // Keep track of last direction
     if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
-        pacmanDir = "left";
+        requestedDir = "left";
     } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-        pacmanDir = "right";
+        requestedDir = "right";
     } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
-        pacmanDir = "up";
+        requestedDir = "up";
     } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
-        pacmanDir = "down";
+        requestedDir = "down";
     }
 }
 
 // Moves Pacman
-function movePacman(pacmanDir) {
-    // Move based on last direction
-    switch(pacmanDir) {
+function movePacman() {
+    // Move based on current direction and requested direction
+    switch(requestedDir) {
         case null:
             break;
         default:
-            speed = checkBounds(pacman, pacmanDir);
+            speed = checkBounds(pacman, requestedDir);
+            if (speed > 0){
+              pacmanDir = requestedDir;
+              pausePacman = false;
+            }
+            else{
+              speed = checkBounds(pacman, pacmanDir);
+              if (speed <= 0){
+                pausePacman = true;
+              }
+              else{
+                pausePacman = false;
+              }
+            }
             pacman.move(pacmanDir, speed);
+
+            //Animate pacman if he is not paused
+            if (!pausePacman){
+              pacmanPhase++;
+              if (pacmanPhase < pacmanAnimateSpeed){
+                pacman.img = pacman_img_1;
+              }
+              else if (pacmanPhase < pacmanAnimateSpeed*2 || (pacmanPhase >= pacmanAnimateSpeed*3 && pacmanPhase < pacmanAnimateSpeed*4)){
+                pacman.img = pacman_img_2;
+              }
+
+              else if (pacmanPhase < pacmanAnimateSpeed*3){
+                pacman.img = pacman_img_3;
+              }
+              else{
+                pacmanPhase = 0;
+                pacman.img = pacman_img_1;
+              }
+            }
             break;
     }
-
     // Redraw the map
     redraw();
 }
