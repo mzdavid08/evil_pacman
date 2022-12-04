@@ -28,7 +28,9 @@ var poisonPellets = 0;
 var walls = new Set();
 var tol = 0.1;
 var pacmanDir = null;
+var requestedDir = null;
 var objSpeed = 2;
+var pacmanAnimate = 0;
 
 // Define element images
 pacman_img.src = "sprites/pacman_2.png";
@@ -58,7 +60,7 @@ function start() {
             e.preventDefault();
         }
     }, false);
-    
+
     // Animate the movement
     animate();
 }
@@ -202,28 +204,33 @@ function redraw() {
 function noteDir(event) {
     // Keep track of last direction
     if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
-        pacmanDir = "left";
+        requestedDir = "left";
     } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-        pacmanDir = "right";
+        requestedDir = "right";
     } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
-        pacmanDir = "up";
+        requestedDir = "up";
     } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
-        pacmanDir = "down";
+        requestedDir = "down";
     }
 }
 
 // Moves Pacman
-function movePacman(pacmanDir) {
-    // Move based on last direction
-    switch(pacmanDir) {
+function movePacman() {
+    // Move based on current direction and requested direction
+    switch(requestedDir) {
         case null:
             break;
         default:
-            speed = checkBounds(pacman, pacmanDir);
+            speed = checkBounds(pacman, requestedDir);
+            if (speed > 0){
+              pacmanDir = requestedDir;
+            }
+            else{
+              speed = checkBounds(pacman, pacmanDir);
+            }
             pacman.move(pacmanDir, speed);
             break;
     }
-
     // Redraw the map
     redraw();
 }
