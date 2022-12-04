@@ -462,9 +462,29 @@ function animate(){
         checkShortcut(pacman);
     }
     redraw();
+    drawFlashlight();
 }
 
+// Draw flashlight around pacman
+function drawFlashlight(){
+    if (!gameWin && !gameLost){
+        context.lineWidth = 900;
+        context.beginPath();
+        context.strokeStyle = "black";
+        context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 300, 0, 2 * Math.PI);;
+        context.stroke();
 
+        // var grd = context.createRadialGradient(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 60, pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70);
+        // grd.addColorStop(0, 'rgba(255,255,255,0)');
+        // grd.addColorStop(1, 'rgba(0,0,0,1)');
+
+        // context.fillStyle = grd;
+        // context.beginPath();
+        // context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70, 0, 2 * Math.PI, true);
+        // context.closePath();
+        // context.fill();
+    }
+}
 
 //Draws the walls
 function drawWall(i, j){
