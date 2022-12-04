@@ -13,12 +13,12 @@ class Pacman {
     this.yTrans = 0;
     this.width = width;
     this.height = height;
-    this.movingDir = 'R';
+    this.movingDir = 'right';
     this.requestedDir = 'R';
   }
 
   // Moves object
-  move(direction, speed) {
+  move(direction) {
     switch (direction) {
       case "left":
         this.xCanvas -= speed;
