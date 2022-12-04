@@ -21,6 +21,11 @@ var blue_img = new Image();
 var orange_img = new Image();
 var pink_img = new Image();
 var red_img = new Image();
+var wall_straight = new Image();
+var wall_end = new Image();
+var wall_corner = new Image();
+var wall_tee = new Image();
+var wall_plus = new Image();
 
 // Create game elements
 var game, maze, width, height, context;
@@ -37,6 +42,8 @@ var pacmanPhase = pacmanAnimateSpeed;
 var pausePacman = true;
 var gameWin = false;
 var gameLost = false;
+var maze_p;
+
 
 // Define element images
 pacman_img_1.src = "sprites/pacman_1.png";
@@ -46,6 +53,11 @@ blue_img.src = "sprites/ghost_blue_up.png";
 orange_img.src = "sprites/ghost_orange_right.png";
 pink_img.src = "sprites/ghost_pink_up.png";
 red_img.src = "sprites/ghost_red_left.png";
+wall_straight.src = "sprites/wall_straight.png";
+wall_end.src = "sprites/wall_end.png";
+wall_corner.src = "sprites/wall_corner.png";
+wall_tee.src = "sprites/wall_tee.png";
+wall_plus.src = "sprites/wall_plus.png";
 
 // Initialization function
 function start() {
@@ -104,6 +116,20 @@ function generateMaze() {
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
+
+    //Build maze with padding (for making walls)
+    maze_p = Array.from(Array(maze.length + 2), () => new Array(maze[0].length + 2))
+    for (var i = 0; i < maze.length + 2; i++){
+        for (var j = 0; j < maze[0].length + 2; j++){
+          if (i == 0 || j == 0 || i == maze.length + 1 || j == maze[0].length + 1){
+            maze_p[i][j] = ' ';
+          }
+          else{
+            maze_p[i][j] = maze[i - 1][j - 1];
+
+          }
+        }
+    }
 
     // Determine size of each maze element
     height = game.height / maze.length;
@@ -178,9 +204,10 @@ function redraw() {
                     context.fillText("SCORE: " + score, j * width, (i + 1 - tol) * height);
                     break;
                 case '#':
-                    // Draw wall
-                    context.fillStyle = "blue";
-                    context.fillRect(j * width, i * height, width, height);
+                    // Draw wal
+                    drawWall(i+1, j+1);
+                    //context.fillStyle = "blue";
+                    //context.fillRect(j * width, i * height, width, height);
                     break;
                 case '.':
                     // Draw normal pellet
@@ -232,6 +259,7 @@ function redraw() {
     context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
     context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
 }
+
 
 // Keeps track of last key pressed
 function noteDir(event) {
@@ -424,4 +452,85 @@ function animate(){
         checkPellets(pacman);
     }
     redraw();
+}
+
+
+
+//Draws the walls
+function drawWall(i, j){
+  context.save();
+  context.translate((j - 1)*width, (i - 1)*height);
+
+  //Draw corners
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i+1][j] == '#' && maze_p[i][j+1] == '#'){
+    context.rotate(-Math.PI);
+    context.drawImage(wall_corner, -width, -height, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i+1][j] == '#' && maze_p[i][j+1] != '#') {
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_corner, -width, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i+1][j] != '#' && maze_p[i][j+1] == '#'){
+    context.rotate((-3*Math.PI)/2);
+    context.drawImage(wall_corner, 0, -height, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i+1][j] != '#' && maze_p[i][j+1] != '#'){
+    context.rotate(0);
+    context.drawImage(wall_corner, 0, 0, height, height);
+  }
+
+  //Draw tees
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
+    context.rotate(0);
+    context.drawImage(wall_tee, 0, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] != '#'){
+    context.rotate(Math.PI);
+    context.drawImage(wall_tee, -width, -height, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_tee, -width, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
+    context.rotate((-3*Math.PI)/2);
+    context.drawImage(wall_tee, 0, -height, height, height);
+  }
+
+  //Draw straight walls
+  if (maze_p[i+1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i-1][j] != '#'){
+    context.rotate(0);
+    context.drawImage(wall_straight, 0, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_straight, -width, 0, height, height);
+  }
+
+  //Draw ends
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] != '#'){
+    context.rotate((-3*Math.PI)/2);
+    context.drawImage(wall_end, 0, -height, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] != '#'){
+    context.rotate(0);
+    context.drawImage(wall_end, 0, 0, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] != '#'){
+    context.rotate(Math.PI);
+    context.drawImage(wall_end, -width, -height, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_end, -width, 0, height, height);
+  }
+
+  //Draw pluses
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
+    context.rotate(0);
+    context.drawImage(wall_plus, 0, 0, height, height);
+  }
+
+  context.restore();
+
 }
