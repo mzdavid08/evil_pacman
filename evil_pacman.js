@@ -35,6 +35,8 @@ var objSpeed = 2;
 var pacmanAnimateSpeed = 3;
 var pacmanPhase = pacmanAnimateSpeed;
 var pausePacman = true;
+var gameWin = false;
+var gameLost = false;
 
 // Define element images
 pacman_img_1.src = "sprites/pacman_1.png";
@@ -84,16 +86,19 @@ function generateMaze() {
     // ' ' = Empty Space
     // 'B', 'O', 'M', 'R' = Ghost Spawns
     // 'S' = Pacman Spawn
-    maze = [['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+    // '-' = Score
+    // 'T' = Win/loss text
+    maze = [['-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+    ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
     ['#', 'P', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
-    ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', 'B', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
-    ['C', '.', '#', 'X', 'X', 'X', 'X', '#', '.', '#', 'O', 'M', 'R', '#', '.', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
-    ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
-    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', 'B', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['C', '.', '#', 'X', 'X', 'X', 'X', '#', ' ', '#', 'O', 'M', 'R', '#', ' ', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', 'T', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
@@ -165,6 +170,13 @@ function redraw() {
     for (let i = 0; i < maze.length; i++) {
         for (let j = 0; j < maze[i].length; j++) {
             switch (maze[i][j]) {
+                case '-':
+                    // Draw score
+                    context.textAlign = "left";
+                    context.font = height + "px Arial";
+                    context.fillStyle = "white";
+                    context.fillText("SCORE: " + score, j * width, (i + 1 - tol) * height);
+                    break;
                 case '#':
                     // Draw wall
                     context.fillStyle = "blue";
@@ -193,6 +205,17 @@ function redraw() {
                     context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
                     context.fill();
                     context.closePath();
+                    break;
+                case 'T':
+                    // Draw win/loss text depending on state of game
+                    context.textAlign = "center";
+                    context.font = height + "px Arial";
+                    context.fillStyle = "white";
+                    if (gameWin) {
+                        context.fillText("YOU WON!", j * width + (width / 2), (i + 1 - tol) * height);
+                    } else if (gameLost) {
+                        context.fillText("GAME OVER", j * width + (width / 2), (i + 1 - tol) * height);
+                    }
                     break;
             }
         }
@@ -384,17 +407,21 @@ function powerPellet() {
 // Game won!
 function gameWon() {
     // TODO: Game win functionality
+    gameWin = true;
 }
 
 // Game over
 function gameOver() {
     // TODO: Game loss functionality
+    gameLost = true;
 }
 
 // Animates all movement
 function animate(){
     requestAnimationFrame(animate);
-    movePacman(pacmanDir);
-    checkPellets(pacman);
+    if (!gameWin && !gameLost) {
+        movePacman(pacmanDir);
+        checkPellets(pacman);
+    }
     redraw();
 }
