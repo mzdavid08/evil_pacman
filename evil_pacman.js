@@ -14,28 +14,50 @@ var pink;
 var red;
 
 // Create images
-var pacman_img = new Image();
+var pacman_img_1 = new Image();
+var pacman_img_2 = new Image();
+var pacman_img_3 = new Image();
 var blue_img = new Image();
 var orange_img = new Image();
 var pink_img = new Image();
 var red_img = new Image();
+var wall_straight = new Image();
+var wall_end = new Image();
+var wall_corner = new Image();
+var wall_tee = new Image();
+var wall_plus = new Image();
 
 // Create game elements
-var game;
-var maze;
-var width;
-var height;
-var context;
-var score;
-var numPellets = 0;
+var game, maze, width, height, context;
+var score = 0;
+var pellets = new Set();
+var poisonPellets = 0;
 var walls = new Set();
+var tol = 0.1;
+var pacmanDir = null;
+var requestedDir = null;
+var objSpeed = 2;
+var pacmanAnimateSpeed = 3;
+var pacmanPhase = pacmanAnimateSpeed;
+var pausePacman = true;
+var gameWin = false;
+var gameLost = false;
+var maze_p;
+
 
 // Define element images
-pacman_img.src = "sprites/pacman_2.png";
+pacman_img_1.src = "sprites/pacman_1.png";
+pacman_img_2.src = "sprites/pacman_2.png";
+pacman_img_3.src = "sprites/pacman_3.png";
 blue_img.src = "sprites/ghost_blue_up.png";
 orange_img.src = "sprites/ghost_orange_right.png";
 pink_img.src = "sprites/ghost_pink_up.png";
 red_img.src = "sprites/ghost_red_left.png";
+wall_straight.src = "sprites/wall_straight.png";
+wall_end.src = "sprites/wall_end.png";
+wall_corner.src = "sprites/wall_corner.png";
+wall_tee.src = "sprites/wall_tee.png";
+wall_plus.src = "sprites/wall_plus.png";
 
 // Initialization function
 function start() {
@@ -47,7 +69,10 @@ function start() {
     redraw();
 
     // Add event listener for WASD/arrow keys
-    document.addEventListener("keydown", movePacman, false);
+    document.addEventListener("keydown", noteDir, false);
+
+    // Move pacman infinitely
+    setTimeout(movePacman(pacmanDir), 1000)
 
     // Prevent arrows from scrolling window
     window.addEventListener("keydown", function (e) {
@@ -56,6 +81,7 @@ function start() {
         }
     }, false);
 
+    // Animate the movement
     animate();
 }
 
@@ -72,21 +98,38 @@ function generateMaze() {
     // ' ' = Empty Space
     // 'B', 'O', 'M', 'R' = Ghost Spawns
     // 'S' = Pacman Spawn
-    maze = [['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+    // '-' = Score
+    // 'T' = Win/loss text
+    maze = [['-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+    ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
     ['#', 'P', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
-    ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', 'B', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
-    ['C', '.', '#', 'X', 'X', 'X', 'X', '#', '.', '#', 'O', 'M', 'R', '#', '.', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
-    ['#', '.', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '.', '#'],
-    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', 'B', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['C', '.', '#', 'X', 'X', 'X', 'X', '#', ' ', '#', 'O', 'M', 'R', '#', ' ', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', 'T', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
+
+    //Build maze with padding (for making walls)
+    maze_p = Array.from(Array(maze.length + 2), () => new Array(maze[0].length + 2))
+    for (var i = 0; i < maze.length + 2; i++){
+        for (var j = 0; j < maze[0].length + 2; j++){
+          if (i == 0 || j == 0 || i == maze.length + 1 || j == maze[0].length + 1){
+            maze_p[i][j] = ' ';
+          }
+          else{
+            maze_p[i][j] = maze[i - 1][j - 1];
+
+          }
+        }
+    }
 
     // Determine size of each maze element
     height = game.height / maze.length;
@@ -104,32 +147,41 @@ function generateMaze() {
                     walls.add([j * width, i * height]);
                     break;
                 case '.':
-                    // Increment the total number of pellets
-                    numPellets++; // Increment the total number of pellets
+                    // Add normal pellets to set of pellets
+                    pellets.add([j, i, "normal"]);
+                    break;
+                case '!':
+                    // Add poison pellets to set of pellets
+                    pellets.add([j, i, "poison"]);
+                    poisonPellets++;
+                    break;
+                case 'P':
+                    // Add power pellets to set of pellets
+                    pellets.add([j, i, "power"]);
                     break;
                 case 'S':
                     // Spawn pacman
-                    pacman = new Pacman(i, j, width, height);
+                    pacman = new Pacman(i, j, width, height, objSpeed, pacman_img_2);
                     maze[i][j] = ' ';
                     break;
                 case 'B':
                     // Spawn blue ghost
-                    blue = new Ghost("Blue", i, j, width, height, 'U');
+                    blue = new Ghost("Blue", i, j, width, height, objSpeed, 'U');
                     maze[i][j] = ' ';
                     break;
                 case 'O':
                     // Spawn orange ghost
-                    orange = new Ghost("Orange", i, j, width, height, 'R');
+                    orange = new Ghost("Orange", i, j, width, height, objSpeed, 'R');
                     maze[i][j] = ' ';
                     break;
                 case 'M':
                     // Spawn pink ghost
-                    pink = new Ghost("Pink", i, j, width, height, 'U');
+                    pink = new Ghost("Pink", i, j, width, height, objSpeed, 'U');
                     maze[i][j] = ' ';
                     break;
                 case 'R':
                     // Spawn red ghost
-                    red = new Ghost("Red", i, j, width, height, 'L');
+                    red = new Ghost("Red", i, j, width, height, objSpeed, 'L');
                     maze[i][j] = ' ';
                     break;
             }
@@ -137,16 +189,25 @@ function generateMaze() {
     }
 }
 
+// Redraw the map
 function redraw() {
     context.clearRect(0, 0, game.width, game.height);
     var pelletsLeft = 0; // Using to keep track of score
     for (let i = 0; i < maze.length; i++) {
         for (let j = 0; j < maze[i].length; j++) {
             switch (maze[i][j]) {
+                case '-':
+                    // Draw score
+                    context.textAlign = "left";
+                    context.font = height + "px Arial";
+                    context.fillStyle = "white";
+                    context.fillText("SCORE: " + score, j * width, (i + 1 - tol) * height);
+                    break;
                 case '#':
-                    // Draw wall
-                    context.fillStyle = "blue";
-                    context.fillRect(j * width, i * height, width, height);
+                    // Draw wal
+                    drawWall(i+1, j+1);
+                    //context.fillStyle = "blue";
+                    //context.fillRect(j * width, i * height, width, height);
                     break;
                 case '.':
                     // Draw normal pellet
@@ -155,7 +216,6 @@ function redraw() {
                     context.arc(j * width + (width / 2), i * height + (width / 2), height / 14, width, height * 2);
                     context.fill();
                     context.closePath();
-                    pelletsLeft++; // Keep track of remaining pellets
                     break;
                 case 'P':
                     // Draw power pellet
@@ -173,54 +233,91 @@ function redraw() {
                     context.fill();
                     context.closePath();
                     break;
+                case 'T':
+                    // Draw win/loss text depending on state of game
+                    context.textAlign = "center";
+                    context.font = height + "px Arial";
+                    context.fillStyle = "white";
+                    if (gameWin) {
+                        context.fillText("YOU WON!", j * width + (width / 2), (i + 1 - tol) * height);
+                    } else if (gameLost) {
+                        context.fillText("GAME OVER", j * width + (width / 2), (i + 1 - tol) * height);
+                    }
+                    break;
             }
         }
     }
 
-    // Calculate score and determine if the game is won
-    score = numPellets - pelletsLeft;
-    if (pelletsLeft == 0) {
-        // TODO: Game win behavior
-        alert("Congrats! You've won Evil Pac-Man!");
-    }
-
     // Spawn all elements
-    context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
+    context.save()
+    context.translate(pacman.xCanvas, pacman.yCanvas);
+    context.rotate(-pacman.angle);
+    context.drawImage(pacman.img, pacman.xTrans, pacman.yTrans, pacman.width, pacman.height);
+    context.restore();
     context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
     context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
     context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
     context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
 }
 
-// Moves Pacman
-function movePacman(event) {
-    // Move based on key pressed
-    if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "left");
-        //pacman.move("left", speed);
-        pacman.speed = speed;
-        pacman.movingDir = "left";
-    } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "right");
-        //pacman.move("right", speed);
-        pacman.speed = speed;
-        pacman.movingDir = "right";
-    } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "up");
-        pacman.speed = speed;
-        //pacman.move("up", speed);
-        pacman.movingDir = "up";
-    } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
-        // Check bounds and obtain speed needed
-        speed = checkBounds(pacman, "down");
-        pacman.speed = speed;
-        //pacman.move("down", speed);
-        pacman.movingDir = "down";
-    }
 
+// Keeps track of last key pressed
+function noteDir(event) {
+    // Keep track of last direction
+    if (event.key == "ArrowLeft" || event.key == "a" || event.key == "A") {
+        requestedDir = "left";
+    } else if (event.key == "ArrowRight" || event.key == "d" || event.key == "D") {
+        requestedDir = "right";
+    } else if (event.key == "ArrowUp" || event.key == "w" || event.key == "W") {
+        requestedDir = "up";
+    } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
+        requestedDir = "down";
+    }
+}
+
+// Moves Pacman
+function movePacman() {
+    // Move based on current direction and requested direction
+    switch(requestedDir) {
+        case null:
+            break;
+        default:
+            speed = checkBounds(pacman, requestedDir);
+            if (speed > 0){
+              pacmanDir = requestedDir;
+              pausePacman = false;
+            }
+            else{
+              speed = checkBounds(pacman, pacmanDir);
+              if (speed <= 0){
+                pausePacman = true;
+              }
+              else{
+                pausePacman = false;
+              }
+            }
+            pacman.move(pacmanDir, speed);
+
+            //Animate pacman if he is not paused
+            if (!pausePacman){
+              pacmanPhase++;
+              if (pacmanPhase < pacmanAnimateSpeed){
+                pacman.img = pacman_img_1;
+              }
+              else if (pacmanPhase < pacmanAnimateSpeed*2 || (pacmanPhase >= pacmanAnimateSpeed*3 && pacmanPhase < pacmanAnimateSpeed*4)){
+                pacman.img = pacman_img_2;
+              }
+
+              else if (pacmanPhase < pacmanAnimateSpeed*3){
+                pacman.img = pacman_img_3;
+              }
+              else{
+                pacmanPhase = 0;
+                pacman.img = pacman_img_1;
+              }
+            }
+            break;
+    }
     // Redraw the map
     redraw();
 }
@@ -265,7 +362,7 @@ function checkBounds(object, direction, speed = object.speed) {
         // Check if any bound check isn't true
         if (!(leftCheck || rightCheck || topCheck || bottomCheck)) {
             // Recursively call the function again and decrement the speed
-            return checkBounds(object, direction, speed - 0.1);
+            return checkBounds(object, direction, speed - tol);
         }
     }
 
@@ -273,31 +370,177 @@ function checkBounds(object, direction, speed = object.speed) {
     return speed;
 }
 
+// Checks pellet collision
+function checkPellets(object) {
+    // Check if game is won, whereas pellets left should be poison pellets
+    if (pellets.size == poisonPellets) {
+        gameWon();
+    }
 
-function animate(){
-    pacman.speed = checkBounds(pacman, pacman.movingDir);
-    requestAnimationFrame(animate);
-    pacman.move(pacman.movingDir);
-    redraw();
-    context.drawImage(pacman_img, pacman.xCanvas, pacman.yCanvas, pacman.width, pacman.height);
-    drawFlashlight();
+    // Iterate through pellets
+    for (var it = pellets.values(), val = null; val = it.next().value;) {
+        // Grab coordinates
+        var j = val[0];
+        var i = val[1];
+        var type = val[2];
+
+        // Define canvas elements
+        // context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
+        var radius;
+        switch(type) {
+            case "normal":
+                radius = height / 12;
+                break;
+            default:
+                radius = height / 6;
+                break;
+        }
+        var xPellet = j * width + (width / 2) - radius;
+        var yPellet = i * height + (width / 2) - radius;
+        var diameter = 2 * radius;
+
+        // Define bound checks
+        let leftCheck = xPellet >= (object.xCanvas + object.width);
+        let rightCheck = (xPellet + diameter) <= object.xCanvas;
+        let topCheck = yPellet >= (object.yCanvas + object.height);
+        let bottomCheck = (yPellet + diameter) <= object.yCanvas;
+
+        // Check if any bound check isn't true
+        if (!(leftCheck || rightCheck || topCheck || bottomCheck)) {
+            // Action based on type
+            switch(type) {
+                case "normal":
+                    score++;
+                    break;
+                case "power":
+                    score++;
+                    powerPellet();
+                    break;
+                case "poison":
+                    gameOver();
+                    break;
+            }
+            // Remove pellet from maze and set
+            maze[i][j] = ' ';
+            pellets.delete(val);
+        }
+    }
 }
 
-function drawFlashlight(){
-    context.lineWidth = 800;
-    context.beginPath();
-    context.strokeStyle = "white";
-    context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 260, 0, 2 * Math.PI);;
+// Shortcut check
+function checkShortcut(object) {
+    if (object.xCanvas <= -width + tol) {
+        object.position(maze[0].length * width - tol, object.yCanvas);
+    } else if (object.xCanvas >= maze[0].length * width - tol) {
+        object.position(0 + tol, object.yCanvas);
+    }
+}
 
-    context.stroke();
+// Power pellet
+function powerPellet() {
+    // TODO: Something if a power pellet is eaten
+}
 
-    // var grd = context.createRadialGradient(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 60, pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70);
-    // grd.addColorStop(0, 'rgba(255,255,255,0)');
-    // grd.addColorStop(1, 'rgba(0,0,0,1)');
+// Game won!
+function gameWon() {
+    // TODO: Game win functionality
+    gameWin = true;
+}
 
-    // context.fillStyle = grd;
-    // context.beginPath();
-    // context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70, 0, 2 * Math.PI, true);
-    // context.closePath();
-    // context.fill();
+// Game over
+function gameOver() {
+    // TODO: Game loss functionality
+    gameLost = true;
+}
+
+// Animates all movement
+function animate(){
+    requestAnimationFrame(animate);
+    if (!gameWin && !gameLost) {
+        movePacman(pacmanDir);
+        checkPellets(pacman);
+        checkShortcut(pacman);
+    }
+    redraw();
+}
+
+
+
+//Draws the walls
+function drawWall(i, j){
+  context.save();
+  context.translate((j - 1)*width, (i - 1)*height);
+
+  //Draw corners
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i+1][j] == '#' && maze_p[i][j+1] == '#'){
+    context.rotate(-Math.PI);
+    context.drawImage(wall_corner, -width, -height, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i+1][j] == '#' && maze_p[i][j+1] != '#') {
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_corner, -width, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i+1][j] != '#' && maze_p[i][j+1] == '#'){
+    context.rotate((-3*Math.PI)/2);
+    context.drawImage(wall_corner, 0, -height, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i+1][j] != '#' && maze_p[i][j+1] != '#'){
+    context.rotate(0);
+    context.drawImage(wall_corner, 0, 0, height, height);
+  }
+
+  //Draw tees
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
+    context.rotate(0);
+    context.drawImage(wall_tee, 0, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] != '#'){
+    context.rotate(Math.PI);
+    context.drawImage(wall_tee, -width, -height, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_tee, -width, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
+    context.rotate((-3*Math.PI)/2);
+    context.drawImage(wall_tee, 0, -height, height, height);
+  }
+
+  //Draw straight walls
+  if (maze_p[i+1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i-1][j] != '#'){
+    context.rotate(0);
+    context.drawImage(wall_straight, 0, 0, height, height);
+  }
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_straight, -width, 0, height, height);
+  }
+
+  //Draw ends
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] != '#'){
+    context.rotate((-3*Math.PI)/2);
+    context.drawImage(wall_end, 0, -height, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] != '#'){
+    context.rotate(0);
+    context.drawImage(wall_end, 0, 0, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] != '#'){
+    context.rotate(Math.PI);
+    context.drawImage(wall_end, -width, -height, height, height);
+  }
+  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
+    context.rotate(-Math.PI/2);
+    context.drawImage(wall_end, -width, 0, height, height);
+  }
+
+  //Draw pluses
+  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
+    context.rotate(0);
+    context.drawImage(wall_plus, 0, 0, height, height);
+  }
+
+  context.restore();
+
 }
