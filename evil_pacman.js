@@ -427,9 +427,18 @@ function checkPellets(object) {
     }
 }
 
-// Game won!
+// Shortcut check
+function checkShortcut(object) {
+    if (object.xCanvas <= -width + tol) {
+        object.position(maze[0].length * width - tol, object.yCanvas);
+    } else if (object.xCanvas >= maze[0].length * width - tol) {
+        object.position(0 + tol, object.yCanvas);
+    }
+}
+
+// Power pellet
 function powerPellet() {
-    // TODO: Something if the power pellet is won
+    // TODO: Something if a power pellet is eaten
 }
 
 // Game won!
@@ -450,6 +459,7 @@ function animate(){
     if (!gameWin && !gameLost) {
         movePacman(pacmanDir);
         checkPellets(pacman);
+        checkShortcut(pacman);
     }
     redraw();
 }
