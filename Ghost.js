@@ -30,5 +30,11 @@ class Ghost {
         break;
     }
   }
+
+  // Directly positions object
+  position(xCanvas, yCanvas) {
+    this.xCanvas = xCanvas;
+    this.yCanvas = yCanvas;
+  }
   
 }
