@@ -43,6 +43,7 @@ var pausePacman = true;
 var gameWin = false;
 var gameLost = false;
 var maze_p;
+var ghostList = [];
 
 
 // Define element images
@@ -107,12 +108,12 @@ function generateMaze() {
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
-    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', 'B', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', ' ', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
     ['C', '.', '#', 'X', 'X', 'X', 'X', '#', ' ', '#', 'O', 'M', 'R', '#', ' ', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
     ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', 'T', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
@@ -167,21 +168,25 @@ function generateMaze() {
                 case 'B':
                     // Spawn blue ghost
                     blue = new Ghost("Blue", i, j, width, height, objSpeed, 'U');
+                    ghostList.push(blue);
                     maze[i][j] = ' ';
                     break;
                 case 'O':
                     // Spawn orange ghost
                     orange = new Ghost("Orange", i, j, width, height, objSpeed, 'R');
+                    ghostList.push(orange);
                     maze[i][j] = ' ';
                     break;
                 case 'M':
                     // Spawn pink ghost
                     pink = new Ghost("Pink", i, j, width, height, objSpeed, 'U');
+                    ghostList.push(pink);
                     maze[i][j] = ' ';
                     break;
                 case 'R':
                     // Spawn red ghost
                     red = new Ghost("Red", i, j, width, height, objSpeed, 'L');
+                    ghostList.push(red);
                     maze[i][j] = ' ';
                     break;
             }
@@ -460,6 +465,7 @@ function animate(){
         movePacman(pacmanDir);
         checkPellets(pacman);
         checkShortcut(pacman);
+        ghostCollision();
     }
     redraw();
     drawFlashlight();
@@ -563,4 +569,18 @@ function drawWall(i, j){
 
   context.restore();
 
+}
+
+
+function ghostCollision(){
+    //console.log("Pacman xCanvas: " + pacman.xCanvas + ", Pacman yCanvas:" + pacman.yCanvas + ", Pacman width: " + pacman.width + ", Pacman height: " + pacman.height);       
+    // console.log("");
+    ghostList.forEach(ghost => {
+        //console.log("Ghost xCanvas: " + ghost.xCanvas + ", Ghost yCanvas:" + ghost.yCanvas + ", Ghost width: " + ghost.width + ", Ghost height: " + ghost.height);
+        //  if ((ghost.xCanvas - ghost.width/2 == pacman.xCanvas + pacman.width/2)   || 
+        //     (ghost.xCanvas + ghost.width/2 == pacman.xCanvas - pacman.width/2)   ||
+        //     (ghost.yCanvas - ghost.height/2 == pacman.yCanvas + pacman.height/2) || 
+        //     (ghost.yCanvas + ghost.height/2 == pacman.yCanvas - pacman.height/2)) {
+        //     }
+    });
 }
