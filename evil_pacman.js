@@ -567,13 +567,16 @@ function drawWall(i, j){
 
 }
 
-function restartGame(endText, i, j){
-    //var seconds = 3 * 1000; 
+function restartGame(endText, i, j){ 
+    document.getElementById("restartText").innerHTML = "PRESS SPACE TO PLAY AGAIN";
     document.addEventListener("keyup", e => {
         if (e.code == "Space"){
             window.location.reload();
         }
     });
+
+    // trying to get gameover text and MSG about pressing space bar to alternate in canvas
+    //var seconds = 3 * 1000;
     // setTimeout(function(){
     //     context.fillText(endText, j * width + (width / 2), (i + 1 - tol) * height);
     // }, seconds);
