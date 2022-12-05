@@ -108,12 +108,12 @@ function generateMaze() {
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
-    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', ' ', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
+    ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', 'B', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
     ['C', '.', '#', 'X', 'X', 'X', 'X', '#', ' ', '#', 'O', 'M', 'R', '#', ' ', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
     ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', 'T', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '#'],
+    ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
@@ -573,14 +573,24 @@ function drawWall(i, j){
 
 
 function ghostCollision(){
-    //console.log("Pacman xCanvas: " + pacman.xCanvas + ", Pacman yCanvas:" + pacman.yCanvas + ", Pacman width: " + pacman.width + ", Pacman height: " + pacman.height);       
-    // console.log("");
+
     ghostList.forEach(ghost => {
-        //console.log("Ghost xCanvas: " + ghost.xCanvas + ", Ghost yCanvas:" + ghost.yCanvas + ", Ghost width: " + ghost.width + ", Ghost height: " + ghost.height);
-        //  if ((ghost.xCanvas - ghost.width/2 == pacman.xCanvas + pacman.width/2)   || 
-        //     (ghost.xCanvas + ghost.width/2 == pacman.xCanvas - pacman.width/2)   ||
-        //     (ghost.yCanvas - ghost.height/2 == pacman.yCanvas + pacman.height/2) || 
-        //     (ghost.yCanvas + ghost.height/2 == pacman.yCanvas - pacman.height/2)) {
-        //     }
+        var pacmanRightSide = pacman.xCanvas + pacman.width;
+        var pacmanLeftSide = pacman.xCanvas;
+        var pacmanTopSide = pacman.yCanvas;
+        var pacmanBotSide = pacman.yCanvas + pacman.height;
+
+        var ghostRightSide = ghost.xCanvas + ghost.width;
+        var ghostLeftSide = ghost.xCanvas;
+        var ghostTopSide = ghost.yCanvas;
+        var ghostBotSide = ghost.yCanvas + ghost.height;
+
+        if (pacmanRightSide >= ghostLeftSide && pacmanRightSide < ghostRightSide && pacmanTopSide == ghostTopSide ||
+            pacmanLeftSide <= ghostRightSide && pacmanLeftSide > ghostLeftSide && pacmanTopSide == ghostTopSide   ||
+            pacmanBotSide >= ghostTopSide && pacmanBotSide < ghostBotSide && pacmanLeftSide == ghostLeftSide      ||
+            pacmanTopSide <= ghostBotSide && pacmanTopSide > ghostTopSide && pacmanLeftSide == ghostLeftSide){ // check for collisions
+                gameLost = true;
+        }
+        
     });
 }
