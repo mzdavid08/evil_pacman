@@ -240,8 +240,10 @@ function redraw() {
                     context.fillStyle = "white";
                     if (gameWin) {
                         context.fillText("YOU WON!", j * width + (width / 2), (i + 1 - tol) * height);
+                        restartGame("YOU WON!");
                     } else if (gameLost) {
-                        context.fillText("GAME OVER", j * width + (width / 2), (i + 1 - tol) * height);
+                        context.fillText("YOU LOST!", j * width + (width / 2), (i + 1 - tol) * height);
+                        restartGame("YOU LOST!", i, j);
                     }
                     break;
             }
@@ -563,4 +565,19 @@ function drawWall(i, j){
 
   context.restore();
 
+}
+
+function restartGame(endText, i, j){
+    //var seconds = 3 * 1000; 
+    document.addEventListener("keyup", e => {
+        if (e.code == "Space"){
+            window.location.reload();
+        }
+    });
+    // setTimeout(function(){
+    //     context.fillText(endText, j * width + (width / 2), (i + 1 - tol) * height);
+    // }, seconds);
+    // setTimeout(function(){
+    //     context.fillText("PRESS SPACE TO PLAY AGAIN", j * width + (width / 2), (i + 1 - tol) * height);
+    // }, seconds);
 }
