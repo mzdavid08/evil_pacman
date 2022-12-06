@@ -62,13 +62,39 @@ wall_corner.src = "sprites/wall_corner.png";
 wall_tee.src = "sprites/wall_tee.png";
 wall_plus.src = "sprites/wall_plus.png";
 
+// Splash screen in canvas at start of the game
+function start_splash(){
+    // Prevent arrows from scrolling window
+    window.addEventListener("keydown", function (e) {
+        if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+            e.preventDefault();
+        }
+    }, false);
+
+
+    game = document.getElementById("game");
+    context = game.getContext("2d");
+    context.beginPath();
+    context.textAlign = "center";
+    context.font = 30 + "px Arial";
+    context.fillStyle = "white";
+    context.fillText("WELCOME TO EVIL PACMAN", 300, 150);
+    context.font = 20 + "px Arial";
+    context.fillText("PRESS SPACE TO START!", 300, 200);
+    document.addEventListener("keyup", function(e){
+        if (e.code === "Space"){
+            start();
+        }
+    });
+}
+
+
+
 // Initialization function
 function start() {
-    // Grab the game's canvas
-    game = document.getElementById("game");
-
     // Generate the maze using the game
     generateMaze();
+    start_splash();
     redraw();
 
     // Add event listener for WASD/arrow keys
@@ -76,13 +102,6 @@ function start() {
 
     // Move pacman infinitely
     setTimeout(movePacman(pacmanDir), 1000)
-
-    // Prevent arrows from scrolling window
-    window.addEventListener("keydown", function (e) {
-        if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
-            e.preventDefault();
-        }
-    }, false);
 
     // Animate the movement
     animate();
