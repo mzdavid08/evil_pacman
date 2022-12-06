@@ -44,6 +44,7 @@ var gameWin = false;
 var gameLost = false;
 var maze_p;
 var ghostList = [];
+var scorePos;
 
 
 // Define element images
@@ -120,15 +121,15 @@ function generateMaze() {
 
     //Build maze with padding (for making walls)
     maze_p = Array.from(Array(maze.length + 2), () => new Array(maze[0].length + 2))
-    for (var i = 0; i < maze.length + 2; i++){
-        for (var j = 0; j < maze[0].length + 2; j++){
-          if (i == 0 || j == 0 || i == maze.length + 1 || j == maze[0].length + 1){
-            maze_p[i][j] = ' ';
-          }
-          else{
-            maze_p[i][j] = maze[i - 1][j - 1];
+    for (var i = 0; i < maze.length + 2; i++) {
+        for (var j = 0; j < maze[0].length + 2; j++) {
+            if (i == 0 || j == 0 || i == maze.length + 1 || j == maze[0].length + 1) {
+                maze_p[i][j] = ' ';
+            }
+            else {
+                maze_p[i][j] = maze[i - 1][j - 1];
 
-          }
+            }
         }
     }
 
@@ -143,6 +144,10 @@ function generateMaze() {
     for (let i = 0; i < maze.length; i++) {
         for (let j = 0; j < maze[i].length; j++) {
             switch (maze[i][j]) {
+                case '-':
+                    // Save score position
+                    scorePos = [j, i];
+                    break;
                 case '#':
                     // Add the wall coordinates to the set of walls
                     walls.add([j * width, i * height]);
@@ -201,16 +206,9 @@ function redraw() {
     for (let i = 0; i < maze.length; i++) {
         for (let j = 0; j < maze[i].length; j++) {
             switch (maze[i][j]) {
-                case '-':
-                    // Draw score
-                    context.textAlign = "left";
-                    context.font = height + "px Arial";
-                    context.fillStyle = "white";
-                    context.fillText("SCORE: " + score, j * width, (i + 1 - tol) * height);
-                    break;
                 case '#':
                     // Draw wal
-                    drawWall(i+1, j+1);
+                    drawWall(i + 1, j + 1);
                     //context.fillStyle = "blue";
                     //context.fillRect(j * width, i * height, width, height);
                     break;
@@ -283,43 +281,43 @@ function noteDir(event) {
 // Moves Pacman
 function movePacman() {
     // Move based on current direction and requested direction
-    switch(requestedDir) {
+    switch (requestedDir) {
         case null:
             break;
         default:
             speed = checkBounds(pacman, requestedDir);
-            if (speed > 0){
-              pacmanDir = requestedDir;
-              pausePacman = false;
-            }
-            else{
-              speed = checkBounds(pacman, pacmanDir);
-              if (speed <= 0){
-                pausePacman = true;
-              }
-              else{
+            if (speed > 0) {
+                pacmanDir = requestedDir;
                 pausePacman = false;
-              }
+            }
+            else {
+                speed = checkBounds(pacman, pacmanDir);
+                if (speed <= 0) {
+                    pausePacman = true;
+                }
+                else {
+                    pausePacman = false;
+                }
             }
             pacman.move(pacmanDir, speed);
 
             //Animate pacman if he is not paused
-            if (!pausePacman){
-              pacmanPhase++;
-              if (pacmanPhase < pacmanAnimateSpeed){
-                pacman.img = pacman_img_1;
-              }
-              else if (pacmanPhase < pacmanAnimateSpeed*2 || (pacmanPhase >= pacmanAnimateSpeed*3 && pacmanPhase < pacmanAnimateSpeed*4)){
-                pacman.img = pacman_img_2;
-              }
+            if (!pausePacman) {
+                pacmanPhase++;
+                if (pacmanPhase < pacmanAnimateSpeed) {
+                    pacman.img = pacman_img_1;
+                }
+                else if (pacmanPhase < pacmanAnimateSpeed * 2 || (pacmanPhase >= pacmanAnimateSpeed * 3 && pacmanPhase < pacmanAnimateSpeed * 4)) {
+                    pacman.img = pacman_img_2;
+                }
 
-              else if (pacmanPhase < pacmanAnimateSpeed*3){
-                pacman.img = pacman_img_3;
-              }
-              else{
-                pacmanPhase = 0;
-                pacman.img = pacman_img_1;
-              }
+                else if (pacmanPhase < pacmanAnimateSpeed * 3) {
+                    pacman.img = pacman_img_3;
+                }
+                else {
+                    pacmanPhase = 0;
+                    pacman.img = pacman_img_1;
+                }
             }
             break;
     }
@@ -392,7 +390,7 @@ function checkPellets(object) {
         // Define canvas elements
         // context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
         var radius;
-        switch(type) {
+        switch (type) {
             case "normal":
                 radius = height / 12;
                 break;
@@ -413,7 +411,7 @@ function checkPellets(object) {
         // Check if any bound check isn't true
         if (!(leftCheck || rightCheck || topCheck || bottomCheck)) {
             // Action based on type
-            switch(type) {
+            switch (type) {
                 case "normal":
                     score++;
                     break;
@@ -459,7 +457,7 @@ function gameOver() {
 }
 
 // Animates all movement
-function animate(){
+function animate() {
     requestAnimationFrame(animate);
     if (!gameWin && !gameLost) {
         movePacman(pacmanDir);
@@ -469,6 +467,19 @@ function animate(){
     }
     redraw();
     drawFlashlight();
+    revealScore();
+}
+
+// Reveal score
+function revealScore() {
+    var j = scorePos[1];
+    var i = scorePos[0];
+
+    // Draw score
+    context.textAlign = "left";
+    context.font = height + "px Arial";
+    context.fillStyle = "white";
+    context.fillText("SCORE: " + score, j * width, (i + 1 - tol) * height);
 }
 
 // Draw flashlight around pacman
@@ -493,81 +504,81 @@ function drawFlashlight(){
 }
 
 //Draws the walls
-function drawWall(i, j){
-  context.save();
-  context.translate((j - 1)*width, (i - 1)*height);
+function drawWall(i, j) {
+    context.save();
+    context.translate((j - 1) * width, (i - 1) * height);
 
-  //Draw corners
-  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i+1][j] == '#' && maze_p[i][j+1] == '#'){
-    context.rotate(-Math.PI);
-    context.drawImage(wall_corner, -width, -height, height, height);
-  }
-  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i+1][j] == '#' && maze_p[i][j+1] != '#') {
-    context.rotate(-Math.PI/2);
-    context.drawImage(wall_corner, -width, 0, height, height);
-  }
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i+1][j] != '#' && maze_p[i][j+1] == '#'){
-    context.rotate((-3*Math.PI)/2);
-    context.drawImage(wall_corner, 0, -height, height, height);
-  }
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i+1][j] != '#' && maze_p[i][j+1] != '#'){
-    context.rotate(0);
-    context.drawImage(wall_corner, 0, 0, height, height);
-  }
+    //Draw corners
+    if (maze_p[i - 1][j] != '#' && maze_p[i][j - 1] != '#' && maze_p[i + 1][j] == '#' && maze_p[i][j + 1] == '#') {
+        context.rotate(-Math.PI);
+        context.drawImage(wall_corner, -width, -height, height, height);
+    }
+    if (maze_p[i - 1][j] != '#' && maze_p[i][j - 1] == '#' && maze_p[i + 1][j] == '#' && maze_p[i][j + 1] != '#') {
+        context.rotate(-Math.PI / 2);
+        context.drawImage(wall_corner, -width, 0, height, height);
+    }
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] != '#' && maze_p[i + 1][j] != '#' && maze_p[i][j + 1] == '#') {
+        context.rotate((-3 * Math.PI) / 2);
+        context.drawImage(wall_corner, 0, -height, height, height);
+    }
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] == '#' && maze_p[i + 1][j] != '#' && maze_p[i][j + 1] != '#') {
+        context.rotate(0);
+        context.drawImage(wall_corner, 0, 0, height, height);
+    }
 
-  //Draw tees
-  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
-    context.rotate(0);
-    context.drawImage(wall_tee, 0, 0, height, height);
-  }
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] != '#'){
-    context.rotate(Math.PI);
-    context.drawImage(wall_tee, -width, -height, height, height);
-  }
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
-    context.rotate(-Math.PI/2);
-    context.drawImage(wall_tee, -width, 0, height, height);
-  }
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
-    context.rotate((-3*Math.PI)/2);
-    context.drawImage(wall_tee, 0, -height, height, height);
-  }
+    //Draw tees
+    if (maze_p[i - 1][j] != '#' && maze_p[i][j - 1] == '#' && maze_p[i][j + 1] == '#' && maze_p[i + 1][j] == '#') {
+        context.rotate(0);
+        context.drawImage(wall_tee, 0, 0, height, height);
+    }
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] == '#' && maze_p[i][j + 1] == '#' && maze_p[i + 1][j] != '#') {
+        context.rotate(Math.PI);
+        context.drawImage(wall_tee, -width, -height, height, height);
+    }
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] != '#' && maze_p[i][j + 1] == '#' && maze_p[i + 1][j] == '#') {
+        context.rotate(-Math.PI / 2);
+        context.drawImage(wall_tee, -width, 0, height, height);
+    }
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] == '#' && maze_p[i][j + 1] != '#' && maze_p[i + 1][j] == '#') {
+        context.rotate((-3 * Math.PI) / 2);
+        context.drawImage(wall_tee, 0, -height, height, height);
+    }
 
-  //Draw straight walls
-  if (maze_p[i+1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i-1][j] != '#'){
-    context.rotate(0);
-    context.drawImage(wall_straight, 0, 0, height, height);
-  }
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
-    context.rotate(-Math.PI/2);
-    context.drawImage(wall_straight, -width, 0, height, height);
-  }
+    //Draw straight walls
+    if (maze_p[i + 1][j] != '#' && maze_p[i][j - 1] == '#' && maze_p[i][j + 1] == '#' && maze_p[i - 1][j] != '#') {
+        context.rotate(0);
+        context.drawImage(wall_straight, 0, 0, height, height);
+    }
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] != '#' && maze_p[i][j + 1] != '#' && maze_p[i + 1][j] == '#') {
+        context.rotate(-Math.PI / 2);
+        context.drawImage(wall_straight, -width, 0, height, height);
+    }
 
-  //Draw ends
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] != '#'){
-    context.rotate((-3*Math.PI)/2);
-    context.drawImage(wall_end, 0, -height, height, height);
-  }
-  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] != '#'){
-    context.rotate(0);
-    context.drawImage(wall_end, 0, 0, height, height);
-  }
-  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] != '#'){
-    context.rotate(Math.PI);
-    context.drawImage(wall_end, -width, -height, height, height);
-  }
-  if (maze_p[i-1][j] != '#' && maze_p[i][j-1] != '#' && maze_p[i][j+1] != '#' && maze_p[i+1][j] == '#'){
-    context.rotate(-Math.PI/2);
-    context.drawImage(wall_end, -width, 0, height, height);
-  }
+    //Draw ends
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] != '#' && maze_p[i][j + 1] != '#' && maze_p[i + 1][j] != '#') {
+        context.rotate((-3 * Math.PI) / 2);
+        context.drawImage(wall_end, 0, -height, height, height);
+    }
+    if (maze_p[i - 1][j] != '#' && maze_p[i][j - 1] == '#' && maze_p[i][j + 1] != '#' && maze_p[i + 1][j] != '#') {
+        context.rotate(0);
+        context.drawImage(wall_end, 0, 0, height, height);
+    }
+    if (maze_p[i - 1][j] != '#' && maze_p[i][j - 1] != '#' && maze_p[i][j + 1] == '#' && maze_p[i + 1][j] != '#') {
+        context.rotate(Math.PI);
+        context.drawImage(wall_end, -width, -height, height, height);
+    }
+    if (maze_p[i - 1][j] != '#' && maze_p[i][j - 1] != '#' && maze_p[i][j + 1] != '#' && maze_p[i + 1][j] == '#') {
+        context.rotate(-Math.PI / 2);
+        context.drawImage(wall_end, -width, 0, height, height);
+    }
 
-  //Draw pluses
-  if (maze_p[i-1][j] == '#' && maze_p[i][j-1] == '#' && maze_p[i][j+1] == '#' && maze_p[i+1][j] == '#'){
-    context.rotate(0);
-    context.drawImage(wall_plus, 0, 0, height, height);
-  }
+    //Draw pluses
+    if (maze_p[i - 1][j] == '#' && maze_p[i][j - 1] == '#' && maze_p[i][j + 1] == '#' && maze_p[i + 1][j] == '#') {
+        context.rotate(0);
+        context.drawImage(wall_plus, 0, 0, height, height);
+    }
 
-  context.restore();
+    context.restore();
 
 }
 
