@@ -243,8 +243,10 @@ function redraw() {
                     context.fillStyle = "white";
                     if (gameWin) {
                         context.fillText("YOU WON!", j * width + (width / 2), (i + 1 - tol) * height);
+                        restartGame("YOU WON!");
                     } else if (gameLost) {
-                        context.fillText("GAME OVER", j * width + (width / 2), (i + 1 - tol) * height);
+                        context.fillText("YOU LOST!", j * width + (width / 2), (i + 1 - tol) * height);
+                        restartGame("YOU LOST!", i, j);
                     }
                     break;
             }
@@ -582,6 +584,23 @@ function drawWall(i, j) {
 
 }
 
+function restartGame(endText, i, j){ 
+    document.getElementById("restartText").innerHTML = "PRESS SPACE TO PLAY AGAIN";
+    document.addEventListener("keyup", e => {
+        if (e.code == "Space"){
+            window.location.reload();
+        }
+    });
+
+    // trying to get gameover text and MSG about pressing space bar to alternate in canvas
+    //var seconds = 3 * 1000;
+    // setTimeout(function(){
+    //     context.fillText(endText, j * width + (width / 2), (i + 1 - tol) * height);
+    // }, seconds);
+    // setTimeout(function(){
+    //     context.fillText("PRESS SPACE TO PLAY AGAIN", j * width + (width / 2), (i + 1 - tol) * height);
+    // }, seconds);
+}
 
 function ghostCollision(){
 
