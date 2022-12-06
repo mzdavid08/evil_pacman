@@ -45,6 +45,7 @@ var gameLost = false;
 var maze_p;
 var ghostList = [];
 var scorePos;
+var replayPos;
 
 
 // Define element images
@@ -92,7 +93,6 @@ function start() {
 function generateMaze() {
     // Define maze as a matrix, where:
     // '.' = Normal Pellet
-    // 'P' = Power Pellet
     // '!' = Poison Pellet
     // '#' = Wall
     // 'X' = Inaccessible
@@ -102,9 +102,9 @@ function generateMaze() {
     // 'S' = Pacman Spawn
     // '-' = Score
     // 'T' = Win/loss text
-    maze = [['-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+    maze = [['-', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'P'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
-    ['#', 'P', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
+    ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
@@ -116,7 +116,7 @@ function generateMaze() {
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'S', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '.', '#', '.', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
-    ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'P', '#'],
+    ['#', '!', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '!', '#'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']];
 
     //Build maze with padding (for making walls)
@@ -161,10 +161,6 @@ function generateMaze() {
                     pellets.add([j, i, "poison"]);
                     poisonPellets++;
                     break;
-                case 'P':
-                    // Add power pellets to set of pellets
-                    pellets.add([j, i, "power"]);
-                    break;
                 case 'S':
                     // Spawn pacman
                     pacman = new Pacman(i, j, width, height, objSpeed, pacman_img_2);
@@ -194,6 +190,10 @@ function generateMaze() {
                     ghostList.push(red);
                     maze[i][j] = ' ';
                     break;
+                case 'P':
+                    // Save replay prompt coordinates
+                    replayPos = [j, i];
+                    break;
             }
         }
     }
@@ -220,14 +220,6 @@ function redraw() {
                     context.fill();
                     context.closePath();
                     break;
-                case 'P':
-                    // Draw power pellet
-                    context.fillStyle = "#F3AFF1";
-                    context.beginPath();
-                    context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
-                    context.fill();
-                    context.closePath();
-                    break;
                 case '!':
                     // Draw poison pellet
                     context.fillStyle = "#79EC74";
@@ -246,7 +238,7 @@ function redraw() {
                         restartGame("YOU WON!");
                     } else if (gameLost) {
                         context.fillText("YOU LOST!", j * width + (width / 2), (i + 1 - tol) * height);
-                        restartGame("YOU LOST!", i, j);
+                        restartGame("GAME OVER", i, j);
                     }
                     break;
             }
@@ -417,10 +409,6 @@ function checkPellets(object) {
                 case "normal":
                     score++;
                     break;
-                case "power":
-                    score++;
-                    powerPellet();
-                    break;
                 case "poison":
                     gameOver();
                     break;
@@ -439,11 +427,6 @@ function checkShortcut(object) {
     } else if (object.xCanvas >= maze[0].length * width - tol) {
         object.position(0 + tol, object.yCanvas);
     }
-}
-
-// Power pellet
-function powerPellet() {
-    // TODO: Something if a power pellet is eaten
 }
 
 // Game won!
@@ -585,21 +568,19 @@ function drawWall(i, j) {
 }
 
 function restartGame(endText, i, j){ 
-    document.getElementById("restartText").innerHTML = "PRESS SPACE TO PLAY AGAIN";
     document.addEventListener("keyup", e => {
         if (e.code == "Space"){
             window.location.reload();
         }
     });
 
-    // trying to get gameover text and MSG about pressing space bar to alternate in canvas
-    //var seconds = 3 * 1000;
-    // setTimeout(function(){
-    //     context.fillText(endText, j * width + (width / 2), (i + 1 - tol) * height);
-    // }, seconds);
-    // setTimeout(function(){
-    //     context.fillText("PRESS SPACE TO PLAY AGAIN", j * width + (width / 2), (i + 1 - tol) * height);
-    // }, seconds);
+    // Show the restart game prompt
+    var j = replayPos[0];
+    var i = replayPos[1];
+    context.textAlign = "right";
+    context.font = height + "px Arial";
+    context.fillStyle = "white";
+    context.fillText("PRESS SPACE TO PLAY AGAIN", (j + 1) * width, (i + 1 - tol) * height);
 }
 
 function ghostCollision(){
