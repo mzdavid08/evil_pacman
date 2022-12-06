@@ -43,7 +43,9 @@ var pausePacman = true;
 var gameWin = false;
 var gameLost = false;
 var maze_p;
+var ghostList = [];
 var scorePos;
+
 
 // Define element images
 pacman_img_1.src = "sprites/pacman_1.png";
@@ -171,21 +173,25 @@ function generateMaze() {
                 case 'B':
                     // Spawn blue ghost
                     blue = new Ghost("Blue", i, j, width, height, objSpeed, 'U');
+                    ghostList.push(blue);
                     maze[i][j] = ' ';
                     break;
                 case 'O':
                     // Spawn orange ghost
                     orange = new Ghost("Orange", i, j, width, height, objSpeed, 'R');
+                    ghostList.push(orange);
                     maze[i][j] = ' ';
                     break;
                 case 'M':
                     // Spawn pink ghost
                     pink = new Ghost("Pink", i, j, width, height, objSpeed, 'U');
+                    ghostList.push(pink);
                     maze[i][j] = ' ';
                     break;
                 case 'R':
                     // Spawn red ghost
                     red = new Ghost("Red", i, j, width, height, objSpeed, 'L');
+                    ghostList.push(red);
                     maze[i][j] = ' ';
                     break;
             }
@@ -457,6 +463,7 @@ function animate() {
         movePacman(pacmanDir);
         checkPellets(pacman);
         checkShortcut(pacman);
+        ghostCollision();
     }
     redraw();
     drawFlashlight();
@@ -476,23 +483,23 @@ function revealScore() {
 }
 
 // Draw flashlight around pacman
-function drawFlashlight() {
-    if (!gameWin && !gameLost) {
-        context.lineWidth = 900;
-        context.beginPath();
-        context.strokeStyle = "black";
-        context.arc(pacman.xCanvas + pacman.width / 2, pacman.yCanvas + pacman.width / 2, 300, 0, 2 * Math.PI);;
-        context.stroke();
+function drawFlashlight(){
+    if (!gameWin && !gameLost){
+    context.lineWidth = 900;
+    context.beginPath();
+    context.strokeStyle = "black";
+    context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 300, 0, 2 * Math.PI);;
+    context.stroke();
 
-        // var grd = context.createRadialGradient(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 60, pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70);
-        // grd.addColorStop(0, 'rgba(255,255,255,0)');
-        // grd.addColorStop(1, 'rgba(0,0,0,1)');
+    // var grd = context.createRadialGradient(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 60, pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70);
+    // grd.addColorStop(0, 'rgba(255,255,255,0)');
+    // grd.addColorStop(1, 'rgba(0,0,0,1)');
 
-        // context.fillStyle = grd;
-        // context.beginPath();
-        // context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70, 0, 2 * Math.PI, true);
-        // context.closePath();
-        // context.fill();
+    // context.fillStyle = grd;
+    // context.beginPath();
+    // context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70, 0, 2 * Math.PI, true);
+    // context.closePath();
+    // context.fill();
     }
 }
 
@@ -573,4 +580,28 @@ function drawWall(i, j) {
 
     context.restore();
 
+}
+
+
+function ghostCollision(){
+
+    ghostList.forEach(ghost => {
+        var pacmanRightSide = pacman.xCanvas + pacman.width;
+        var pacmanLeftSide = pacman.xCanvas;
+        var pacmanTopSide = pacman.yCanvas;
+        var pacmanBotSide = pacman.yCanvas + pacman.height;
+
+        var ghostRightSide = ghost.xCanvas + ghost.width;
+        var ghostLeftSide = ghost.xCanvas;
+        var ghostTopSide = ghost.yCanvas;
+        var ghostBotSide = ghost.yCanvas + ghost.height;
+
+        if (pacmanRightSide >= ghostLeftSide && pacmanRightSide < ghostRightSide && pacmanTopSide == ghostTopSide ||
+            pacmanLeftSide <= ghostRightSide && pacmanLeftSide > ghostLeftSide && pacmanTopSide == ghostTopSide   ||
+            pacmanBotSide >= ghostTopSide && pacmanBotSide < ghostBotSide && pacmanLeftSide == ghostLeftSide      ||
+            pacmanTopSide <= ghostBotSide && pacmanTopSide > ghostTopSide && pacmanLeftSide == ghostLeftSide){ // check for collisions
+                gameLost = true;
+        }
+        
+    });
 }
