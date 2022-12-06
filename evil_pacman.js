@@ -47,7 +47,7 @@ var ghostList = [];
 var scorePos;
 var replayPos;
 var flashlightRadius = 150;
-
+var gameStarted = false;
 
 // Define element images
 pacman_img_1.src = "sprites/pacman_1.png";
@@ -82,14 +82,21 @@ function start_splash(){
     context.fillText("WELCOME TO EVIL PACMAN", 300, 150);
     context.font = 20 + "px Arial";
     context.fillText("PRESS SPACE TO START!", 300, 200);
-    document.addEventListener("keyup", function(e){
-        if (e.code === "Space"){
-            start();
-        }
-    });
+    document.addEventListener("keyup", startGame);
 }
 
-
+function startGame(e) {
+    if (e.code === "Space"){
+        if (gameWin || gameLost) {
+            gameStarted = false;
+            window.location.reload();
+        }
+        else if (!gameStarted) {
+            gameStarted = true;
+            start();
+        }
+    }
+}
 
 // Initialization function
 function start() {
@@ -255,10 +262,10 @@ function redraw() {
                     context.fillStyle = "white";
                     if (gameWin) {
                         context.fillText("YOU WON!", j * width + (width / 2), (i + 1 - tol) * height);
-                        restartGame("YOU WON!");
+                        restartGame();
                     } else if (gameLost) {
-                        context.fillText("YOU LOST!", j * width + (width / 2), (i + 1 - tol) * height);
-                        restartGame("GAME OVER", i, j);
+                        context.fillText("GAME OVER", j * width + (width / 2), (i + 1 - tol) * height);
+                        restartGame();
                     }
                     break;
             }
@@ -618,13 +625,7 @@ function drawWall(i, j) {
 
 }
 
-function restartGame(endText, i, j){
-    document.addEventListener("keyup", e => {
-        if (e.code == "Space"){
-            window.location.reload();
-        }
-    });
-
+function restartGame(){ 
     // Show the restart game prompt
     var j = replayPos[0];
     var i = replayPos[1];
