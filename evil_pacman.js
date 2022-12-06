@@ -46,6 +46,7 @@ var maze_p;
 var ghostList = [];
 var scorePos;
 var replayPos;
+var flashlightRadius = 150;
 
 
 // Define element images
@@ -444,7 +445,7 @@ function checkShortcut(object) {
     if (object.xCanvas <= -width + tol) {
         object.position(maze[0].length * width - tol, object.yCanvas);
     } else if (object.xCanvas >= maze[0].length * width - tol) {
-        object.position(0 + tol, object.yCanvas);
+        object.position(-width, object.yCanvas);
     }
 }
 
@@ -489,21 +490,52 @@ function revealScore() {
 // Draw flashlight around pacman
 function drawFlashlight(){
     if (!gameWin && !gameLost){
-    context.lineWidth = 900;
-    context.beginPath();
-    context.strokeStyle = "black";
-    context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 300, 0, 2 * Math.PI);;
-    context.stroke();
+      //Draws one flashlight around Pacman
+      if (pacman.xCanvas > flashlightRadius/1.4 && pacman.xCanvas < width*maze[0].length - (flashlightRadius/1.4)){
+        var grd = context.createRadialGradient(pacman.xCanvas + width/2, pacman.yCanvas + width/2, 15, pacman.xCanvas + width/2, pacman.yCanvas + width/2, flashlightRadius);
+        grd.addColorStop(0, 'rgba(0,0,0,0)');
+        grd.addColorStop(1, 'rgba(0,0,0,1)');
+        context.fillStyle = grd;
+        context.fillRect(0, height, width*maze[0].length, height*maze.length);
+      }
+      else if (pacman.xCanvas <= flashlightRadius/1.4){
+        //Draws the flashlight around pacman
+        var grd1 = context.createRadialGradient(pacman.xCanvas + width/2, pacman.yCanvas + width/2, 15, pacman.xCanvas + width/2, pacman.yCanvas + width/2, flashlightRadius);
+        grd1.addColorStop(0, 'rgba(0,0,0,0)');
+        grd1.addColorStop(1, 'rgba(0,0,0,1)');
+        context.fillStyle = grd1;
+        context.fillRect(0, height, (width*maze[0].length)/2 + 2, height*maze.length);
 
-    // var grd = context.createRadialGradient(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 60, pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70);
-    // grd.addColorStop(0, 'rgba(255,255,255,0)');
-    // grd.addColorStop(1, 'rgba(0,0,0,1)');
+        //Determines location and opacity of second flashlight
+        var xMirror = width*maze[0].length + (pacman.xCanvas + (3*width)/2);
+        var yOpacity = (Math.abs(pacman.yCanvas - maze.length*width/2)/(maze.length*width/3))
 
-    // context.fillStyle = grd;
-    // context.beginPath();
-    // context.arc(pacman.xCanvas + pacman.width/2, pacman.yCanvas + pacman.width/2, 70, 0, 2 * Math.PI, true);
-    // context.closePath();
-    // context.fill();
+        //Draws flashlight on the right side of the room
+        var grd2 = context.createRadialGradient(xMirror, (maze.length*height)/2 + width/2, 15, xMirror, (maze.length*height)/2 + width/2, flashlightRadius);
+        grd2.addColorStop(0, 'rgba(0,0,0,' + yOpacity + ')');
+        grd2.addColorStop(1, 'rgba(0,0,0,1)');
+        context.fillStyle = grd2;
+        context.fillRect((width*maze[0].length)/2 - 2, height, width*maze[0].length, height*maze.length);
+      }
+      else{
+        //Draws the flashlight around pacman
+        var grd1 = context.createRadialGradient(pacman.xCanvas + width/2, pacman.yCanvas + width/2, 15, pacman.xCanvas + width/2, pacman.yCanvas + width/2, flashlightRadius);
+        grd1.addColorStop(0, 'rgba(0,0,0,0)');
+        grd1.addColorStop(1, 'rgba(0,0,0,1)');
+        context.fillStyle = grd1;
+        context.fillRect((width*maze[0].length)/2 - 2, height, width*maze[0].length, height*maze.length);
+
+        //Determines location and opacity of second flashlight
+        var xMirror = (pacman.xCanvas + width/2) - width*maze[0].length - width;
+        var yOpacity = (Math.abs(pacman.yCanvas - maze.length*width/2)/(maze.length*width/3))
+
+        //Draws flashlight on the left side of the room
+        var grd2 = context.createRadialGradient(xMirror, (maze.length*height)/2 + width/2, 15, xMirror, (maze.length*height)/2 + width/2, flashlightRadius);
+        grd2.addColorStop(0, 'rgba(0,0,0,' + yOpacity + ')');
+        grd2.addColorStop(1, 'rgba(0,0,0,1)');
+        context.fillStyle = grd2;
+        context.fillRect(0, height, (width*maze[0].length)/2 + 2, height*maze.length);
+      }
     }
 }
 
@@ -586,7 +618,7 @@ function drawWall(i, j) {
 
 }
 
-function restartGame(endText, i, j){ 
+function restartGame(endText, i, j){
     document.addEventListener("keyup", e => {
         if (e.code == "Space"){
             window.location.reload();
@@ -621,6 +653,6 @@ function ghostCollision(){
             pacmanTopSide <= ghostBotSide && pacmanTopSide > ghostTopSide && pacmanLeftSide == ghostLeftSide){ // check for collisions
                 gameLost = true;
         }
-        
+
     });
 }
