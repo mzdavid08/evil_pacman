@@ -43,5 +43,5 @@ class Ghost {
     this.xCanvas = xCanvas;
     this.yCanvas = yCanvas;
   }
-  
+
 }
