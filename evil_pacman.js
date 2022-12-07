@@ -137,7 +137,7 @@ function generateMaze() {
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', 'B', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
-    ['C', '.', '#', 'X', 'X', 'X', 'X', '#', ' ', '#', 'O', 'M', 'R', '#', ' ', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
+    ['C', '.', '#', 'X', 'X', 'X', 'X', '#', ' ', 'X', 'O', 'M', 'R', 'X', ' ', '#', 'X', 'X', 'X', 'X', '#', '.', 'C'],
     ['#', '.', '#', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#', '#', '#', '.', '#'],
     ['#', '.', '.', '.', '.', '.', '.', '.', ' ', ' ', ' ', 'T', ' ', ' ', ' ', '.', '.', '.', '.', '.', '.', '.', '#'],
     ['#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#'],
@@ -195,25 +195,25 @@ function generateMaze() {
                     break;
                 case 'B':
                     // Spawn blue ghost
-                    blue = new Ghost("Blue", i, j, width, height, objSpeed, 'U');
+                    blue = new Ghost("Blue", i, j, width, height, objSpeed, 'up');
                     ghostList.push(blue);
                     maze[i][j] = ' ';
                     break;
                 case 'O':
                     // Spawn orange ghost
-                    orange = new Ghost("Orange", i, j, width, height, objSpeed, 'R');
+                    orange = new Ghost("Orange", i, j, width, height, objSpeed, 'right');
                     ghostList.push(orange);
                     maze[i][j] = ' ';
                     break;
                 case 'M':
                     // Spawn pink ghost
-                    pink = new Ghost("Pink", i, j, width, height, objSpeed, 'U');
+                    pink = new Ghost("Pink", i, j, width, height, objSpeed, 'up');
                     ghostList.push(pink);
                     maze[i][j] = ' ';
                     break;
                 case 'R':
                     // Spawn red ghost
-                    red = new Ghost("Red", i, j, width, height, objSpeed, 'L');
+                    red = new Ghost("Red", i, j, width, height, objSpeed, 'left');
                     ghostList.push(red);
                     maze[i][j] = ' ';
                     break;
@@ -297,6 +297,44 @@ function noteDir(event) {
     } else if (event.key == "ArrowDown" || event.key == "s" || event.key == "S") {
         requestedDir = "down";
     }
+}
+
+function moveGhost(ghost) {
+  var dirs = ['left', 'right', 'up', 'down'];
+  /*
+  var dirCount = 0;
+  var speeds = new Array(4);
+  for (var i = 0; i < 4; i++){
+    speeds[i] = checkBounds(ghost, dirs[i]);
+    if (speeds[i] != 0){
+      dirCount++;
+      oneDir = i;
+    }
+  }
+  if (dirCount == 1){
+    ghost.move(dirs[oneDir], speeds[oneDir]);
+  }
+  else if ((speeds[0] != 0 && speeds[1] != 0) || (speeds[2] != 0 && speeds[3] != 0)){
+    ghost.move(ghost.movingDir, ghost.speed);
+  }
+  var randSpeed = 0;
+  var randDir;
+  while (randSpeed == 0){
+    randDir = Math.floor(Math.random() * 4);
+    randSpeed = speeds[randDir];
+  }
+  ghost.movingDir = randDir;
+  ghost.speed = randSpeed;
+  ghost.move(dirs[randDir], randSpeed);
+  */
+  randDir = dirs[Math.floor(Math.random() * 4)];
+  speed = checkBounds(ghost, ghost.movingDir);
+    while (speed == 0){
+      randDir = dirs[Math.floor(Math.random() * 4)];
+      speed = checkBounds(ghost, randDir);
+      ghost.movingDir = randDir;
+    }
+  ghost.move(ghost.movingDir, speed);
 }
 
 // Moves Pacman
@@ -475,6 +513,10 @@ function animate() {
         movePacman(pacmanDir);
         checkPellets(pacman);
         checkShortcut(pacman);
+        moveGhost(red);
+        moveGhost(orange);
+        moveGhost(blue);
+        moveGhost(pink);
         ghostCollision();
     }
     redraw();
@@ -625,7 +667,7 @@ function drawWall(i, j) {
 
 }
 
-function restartGame(){ 
+function restartGame(){
     // Show the restart game prompt
     var j = replayPos[0];
     var i = replayPos[1];
