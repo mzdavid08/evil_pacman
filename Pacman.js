@@ -14,7 +14,7 @@ class Pacman {
     this.width = width;
     this.height = height;
     this.movingDir = 'right';
-    this.requestedDir = 'R';
+    this.requestedDir = 'right';
   }
 
   // Moves object
