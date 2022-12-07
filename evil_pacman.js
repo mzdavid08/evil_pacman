@@ -17,10 +17,10 @@ var red;
 var pacman_img_1 = new Image();
 var pacman_img_2 = new Image();
 var pacman_img_3 = new Image();
-var blue_img = new Image();
-var orange_img = new Image();
-var pink_img = new Image();
-var red_img = new Image();
+var blue_imgs = new Array(4);
+var orange_imgs = new Array(4);
+var pink_imgs = new Array(4);
+var red_imgs = new Array(4);
 var wall_straight = new Image();
 var wall_end = new Image();
 var wall_corner = new Image();
@@ -45,15 +45,21 @@ var gameLost = false;
 var ghostList = [];
 var flashlightRadius = 150;
 var gameStarted = false;
+var dirs = ['left', 'right', 'up', 'down'];
+var ghosts = ['red', 'orange', 'blue', 'pink'];
+var ghost_img = new Array(4).fill(new Image()).map(() => new Array(4).fill(new Image()));
+
+for (var i = 0; i < 4; i++){
+  for (var j = 0; j < 4; j++){
+    ghost_img[i][j] = new Image();
+    ghost_img[i][j].src = "sprites/ghost_" + ghosts[i] + "_" + dirs[j] + ".png";
+  }
+}
 
 // Define element images
 pacman_img_1.src = "sprites/pacman_1.png";
 pacman_img_2.src = "sprites/pacman_2.png";
 pacman_img_3.src = "sprites/pacman_3.png";
-blue_img.src = "sprites/ghost_blue_up.png";
-orange_img.src = "sprites/ghost_orange_right.png";
-pink_img.src = "sprites/ghost_pink_up.png";
-red_img.src = "sprites/ghost_red_left.png";
 wall_straight.src = "sprites/wall_straight.png";
 wall_end.src = "sprites/wall_end.png";
 wall_corner.src = "sprites/wall_corner.png";
@@ -196,25 +202,25 @@ function generateMaze() {
                     break;
                 case 'B':
                     // Spawn blue ghost
-                    blue = new Ghost("Blue", i, j, width, height, objSpeed, 'up');
+                    blue = new Ghost("blue", i, j, width, height, objSpeed, 'up');
                     ghostList.push(blue);
                     maze[i][j] = ' ';
                     break;
                 case 'O':
                     // Spawn orange ghost
-                    orange = new Ghost("Orange", i, j, width, height, objSpeed, 'right');
+                    orange = new Ghost("orange", i, j, width, height, objSpeed, 'right');
                     ghostList.push(orange);
                     maze[i][j] = ' ';
                     break;
                 case 'M':
                     // Spawn pink ghost
-                    pink = new Ghost("Pink", i, j, width, height, objSpeed, 'up');
+                    pink = new Ghost("pink", i, j, width, height, objSpeed, 'up');
                     ghostList.push(pink);
                     maze[i][j] = ' ';
                     break;
                 case 'R':
                     // Spawn red ghost
-                    red = new Ghost("Red", i, j, width, height, objSpeed, 'left');
+                    red = new Ghost("red", i, j, width, height, objSpeed, 'left');
                     ghostList.push(red);
                     maze[i][j] = ' ';
                     break;
@@ -277,10 +283,12 @@ function redraw() {
     context.rotate(-pacman.angle);
     context.drawImage(pacman.img, pacman.xTrans, pacman.yTrans, pacman.width, pacman.height);
     context.restore();
-    context.drawImage(blue_img, blue.xCanvas, blue.yCanvas, height, height);
-    context.drawImage(orange_img, orange.xCanvas, orange.yCanvas, height, height);
-    context.drawImage(pink_img, pink.xCanvas, pink.yCanvas, height, height);
-    context.drawImage(red_img, red.xCanvas, red.yCanvas, height, height);
+    console.log(dirs.indexOf(blue.movingDir));
+    console.log(blue.movingDir);
+    context.drawImage(ghost_img[ghosts.indexOf("blue")][dirs.indexOf(blue.movingDir)], blue.xCanvas, blue.yCanvas, height, height);
+    context.drawImage(ghost_img[ghosts.indexOf("orange")][dirs.indexOf(orange.movingDir)], orange.xCanvas, orange.yCanvas, height, height);
+    context.drawImage(ghost_img[ghosts.indexOf("pink")][dirs.indexOf(pink.movingDir)], pink.xCanvas, pink.yCanvas, height, height);
+    context.drawImage(ghost_img[ghosts.indexOf("red")][dirs.indexOf(red.movingDir)], red.xCanvas, red.yCanvas, height, height);
 }
 
 
@@ -299,7 +307,6 @@ function noteDir(event) {
 }
 
 function moveGhost(ghost) {
-    var dirs = ['left', 'right', 'up', 'down'];
     randDir = dirs[Math.floor(Math.random() * 4)];
     speed = checkBounds(ghost, ghost.movingDir);
     while (speed == 0) {
