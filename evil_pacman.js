@@ -28,7 +28,7 @@ var wall_tee = new Image();
 var wall_plus = new Image();
 
 // Create game elements
-var game, maze, width, height, context;
+var game, maze, width, height, context, maze_p, scorePos, replayPos, shortcutY;
 var score = 0;
 var pellets = new Set();
 var poisonPellets = 0;
@@ -42,10 +42,7 @@ var pacmanPhase = pacmanAnimateSpeed;
 var pausePacman = true;
 var gameWin = false;
 var gameLost = false;
-var maze_p;
 var ghostList = [];
-var scorePos;
-var replayPos;
 var flashlightRadius = 150;
 var gameStarted = false;
 
@@ -64,7 +61,7 @@ wall_tee.src = "sprites/wall_tee.png";
 wall_plus.src = "sprites/wall_plus.png";
 
 // Splash screen in canvas at start of the game
-function start_splash(){
+function start_splash() {
     // Prevent arrows from scrolling window
     window.addEventListener("keydown", function (e) {
         if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
@@ -86,7 +83,7 @@ function start_splash(){
 }
 
 function startGame(e) {
-    if (e.code === "Space"){
+    if (e.code === "Space") {
         if (gameWin || gameLost) {
             gameStarted = false;
             window.location.reload();
@@ -175,6 +172,10 @@ function generateMaze() {
                     // Save score position
                     scorePos = [j, i];
                     break;
+                case 'C':
+                    // Save shortcut y-position
+                    shortcutY = i * height;
+                    break;
                 case '#':
                     // Add the wall coordinates to the set of walls
                     walls.add([j * width, i * height]);
@@ -234,10 +235,8 @@ function redraw() {
         for (let j = 0; j < maze[i].length; j++) {
             switch (maze[i][j]) {
                 case '#':
-                    // Draw wal
+                    // Draw wall
                     drawWall(i + 1, j + 1);
-                    //context.fillStyle = "blue";
-                    //context.fillRect(j * width, i * height, width, height);
                     break;
                 case '.':
                     // Draw normal pellet
@@ -300,41 +299,15 @@ function noteDir(event) {
 }
 
 function moveGhost(ghost) {
-  var dirs = ['left', 'right', 'up', 'down'];
-  /*
-  var dirCount = 0;
-  var speeds = new Array(4);
-  for (var i = 0; i < 4; i++){
-    speeds[i] = checkBounds(ghost, dirs[i]);
-    if (speeds[i] != 0){
-      dirCount++;
-      oneDir = i;
+    var dirs = ['left', 'right', 'up', 'down'];
+    randDir = dirs[Math.floor(Math.random() * 4)];
+    speed = checkBounds(ghost, ghost.movingDir);
+    while (speed == 0) {
+        randDir = dirs[Math.floor(Math.random() * 4)];
+        speed = checkBounds(ghost, randDir);
+        ghost.movingDir = randDir;
     }
-  }
-  if (dirCount == 1){
-    ghost.move(dirs[oneDir], speeds[oneDir]);
-  }
-  else if ((speeds[0] != 0 && speeds[1] != 0) || (speeds[2] != 0 && speeds[3] != 0)){
-    ghost.move(ghost.movingDir, ghost.speed);
-  }
-  var randSpeed = 0;
-  var randDir;
-  while (randSpeed == 0){
-    randDir = Math.floor(Math.random() * 4);
-    randSpeed = speeds[randDir];
-  }
-  ghost.movingDir = randDir;
-  ghost.speed = randSpeed;
-  ghost.move(dirs[randDir], randSpeed);
-  */
-  randDir = dirs[Math.floor(Math.random() * 4)];
-  speed = checkBounds(ghost, ghost.movingDir);
-    while (speed == 0){
-      randDir = dirs[Math.floor(Math.random() * 4)];
-      speed = checkBounds(ghost, randDir);
-      ghost.movingDir = randDir;
-    }
-  ghost.move(ghost.movingDir, speed);
+    ghost.move(ghost.movingDir, speed);
 }
 
 // Moves Pacman
@@ -415,7 +388,7 @@ function checkBounds(object, direction, speed = object.speed) {
         var xWall = val[0];
         var yWall = val[1];
 
-        // Define bound checks
+        // Define bound checks for each side (left, right, top down)
         let leftCheck = xWall >= (xCoord + object.width);
         let rightCheck = (xWall + width) <= xCoord;
         let topCheck = yWall >= (yCoord + object.height);
@@ -447,7 +420,6 @@ function checkPellets(object) {
         var type = val[2];
 
         // Define canvas elements
-        // context.arc(j * width + (width / 2), i * height + (width / 2), height / 6, width, height * 2);
         var radius;
         switch (type) {
             case "normal":
@@ -461,7 +433,7 @@ function checkPellets(object) {
         var yPellet = i * height + (width / 2) - radius;
         var diameter = 2 * radius;
 
-        // Define bound checks
+        // Define bound checks for each side (left, right, top down)
         let leftCheck = xPellet >= (object.xCanvas + object.width);
         let rightCheck = (xPellet + diameter) <= object.xCanvas;
         let topCheck = yPellet >= (object.yCanvas + object.height);
@@ -488,9 +460,9 @@ function checkPellets(object) {
 // Shortcut check
 function checkShortcut(object) {
     if (object.xCanvas <= -width + tol) {
-        object.position(maze[0].length * width - tol, object.yCanvas);
+        object.position(maze[0].length * width - tol, shortcutY);
     } else if (object.xCanvas >= maze[0].length * width - tol) {
-        object.position(-width, object.yCanvas);
+        object.position(-width, shortcutY);
     }
 }
 
@@ -537,54 +509,54 @@ function revealScore() {
 }
 
 // Draw flashlight around pacman
-function drawFlashlight(){
-    if (!gameWin && !gameLost){
-      //Draws one flashlight around Pacman
-      if (pacman.xCanvas > flashlightRadius/1.4 && pacman.xCanvas < width*maze[0].length - (flashlightRadius/1.4)){
-        var grd = context.createRadialGradient(pacman.xCanvas + width/2, pacman.yCanvas + width/2, 15, pacman.xCanvas + width/2, pacman.yCanvas + width/2, flashlightRadius);
-        grd.addColorStop(0, 'rgba(0,0,0,0)');
-        grd.addColorStop(1, 'rgba(0,0,0,1)');
-        context.fillStyle = grd;
-        context.fillRect(0, height, width*maze[0].length, height*maze.length);
-      }
-      else if (pacman.xCanvas <= flashlightRadius/1.4){
-        //Draws the flashlight around pacman
-        var grd1 = context.createRadialGradient(pacman.xCanvas + width/2, pacman.yCanvas + width/2, 15, pacman.xCanvas + width/2, pacman.yCanvas + width/2, flashlightRadius);
-        grd1.addColorStop(0, 'rgba(0,0,0,0)');
-        grd1.addColorStop(1, 'rgba(0,0,0,1)');
-        context.fillStyle = grd1;
-        context.fillRect(0, height, (width*maze[0].length)/2 + 2, height*maze.length);
+function drawFlashlight() {
+    if (!gameWin && !gameLost) {
+        //Draws one flashlight around Pacman
+        if (pacman.xCanvas > flashlightRadius / 1.4 && pacman.xCanvas < width * maze[0].length - (flashlightRadius / 1.4)) {
+            var grd = context.createRadialGradient(pacman.xCanvas + width / 2, pacman.yCanvas + width / 2, 15, pacman.xCanvas + width / 2, pacman.yCanvas + width / 2, flashlightRadius);
+            grd.addColorStop(0, 'rgba(0,0,0,0)');
+            grd.addColorStop(1, 'rgba(0,0,0,1)');
+            context.fillStyle = grd;
+            context.fillRect(0, height, width * maze[0].length, height * maze.length);
+        }
+        else if (pacman.xCanvas <= flashlightRadius / 1.4) {
+            //Draws the flashlight around pacman
+            var grd1 = context.createRadialGradient(pacman.xCanvas + width / 2, pacman.yCanvas + width / 2, 15, pacman.xCanvas + width / 2, pacman.yCanvas + width / 2, flashlightRadius);
+            grd1.addColorStop(0, 'rgba(0,0,0,0)');
+            grd1.addColorStop(1, 'rgba(0,0,0,1)');
+            context.fillStyle = grd1;
+            context.fillRect(0, height, (width * maze[0].length) / 2 + 2, height * maze.length);
 
-        //Determines location and opacity of second flashlight
-        var xMirror = width*maze[0].length + (pacman.xCanvas + (3*width)/2);
-        var yOpacity = (Math.abs(pacman.yCanvas - maze.length*width/2)/(maze.length*width/3))
+            //Determines location and opacity of second flashlight
+            var xMirror = width * maze[0].length + (pacman.xCanvas + (3 * width) / 2);
+            var yOpacity = (Math.abs(pacman.yCanvas - maze.length * width / 2) / (maze.length * width / 3))
 
-        //Draws flashlight on the right side of the room
-        var grd2 = context.createRadialGradient(xMirror, (maze.length*height)/2 + width/2, 15, xMirror, (maze.length*height)/2 + width/2, flashlightRadius);
-        grd2.addColorStop(0, 'rgba(0,0,0,' + yOpacity + ')');
-        grd2.addColorStop(1, 'rgba(0,0,0,1)');
-        context.fillStyle = grd2;
-        context.fillRect((width*maze[0].length)/2 - 2, height, width*maze[0].length, height*maze.length);
-      }
-      else{
-        //Draws the flashlight around pacman
-        var grd1 = context.createRadialGradient(pacman.xCanvas + width/2, pacman.yCanvas + width/2, 15, pacman.xCanvas + width/2, pacman.yCanvas + width/2, flashlightRadius);
-        grd1.addColorStop(0, 'rgba(0,0,0,0)');
-        grd1.addColorStop(1, 'rgba(0,0,0,1)');
-        context.fillStyle = grd1;
-        context.fillRect((width*maze[0].length)/2 - 2, height, width*maze[0].length, height*maze.length);
+            //Draws flashlight on the right side of the room
+            var grd2 = context.createRadialGradient(xMirror, (maze.length * height) / 2 + width / 2, 15, xMirror, (maze.length * height) / 2 + width / 2, flashlightRadius);
+            grd2.addColorStop(0, 'rgba(0,0,0,' + yOpacity + ')');
+            grd2.addColorStop(1, 'rgba(0,0,0,1)');
+            context.fillStyle = grd2;
+            context.fillRect((width * maze[0].length) / 2 - 2, height, width * maze[0].length, height * maze.length);
+        }
+        else {
+            //Draws the flashlight around pacman
+            var grd1 = context.createRadialGradient(pacman.xCanvas + width / 2, pacman.yCanvas + width / 2, 15, pacman.xCanvas + width / 2, pacman.yCanvas + width / 2, flashlightRadius);
+            grd1.addColorStop(0, 'rgba(0,0,0,0)');
+            grd1.addColorStop(1, 'rgba(0,0,0,1)');
+            context.fillStyle = grd1;
+            context.fillRect((width * maze[0].length) / 2 - 2, height, width * maze[0].length, height * maze.length);
 
-        //Determines location and opacity of second flashlight
-        var xMirror = (pacman.xCanvas + width/2) - width*maze[0].length - width;
-        var yOpacity = (Math.abs(pacman.yCanvas - maze.length*width/2)/(maze.length*width/3))
+            //Determines location and opacity of second flashlight
+            var xMirror = (pacman.xCanvas + width / 2) - width * maze[0].length - width;
+            var yOpacity = (Math.abs(pacman.yCanvas - maze.length * width / 2) / (maze.length * width / 3))
 
-        //Draws flashlight on the left side of the room
-        var grd2 = context.createRadialGradient(xMirror, (maze.length*height)/2 + width/2, 15, xMirror, (maze.length*height)/2 + width/2, flashlightRadius);
-        grd2.addColorStop(0, 'rgba(0,0,0,' + yOpacity + ')');
-        grd2.addColorStop(1, 'rgba(0,0,0,1)');
-        context.fillStyle = grd2;
-        context.fillRect(0, height, (width*maze[0].length)/2 + 2, height*maze.length);
-      }
+            //Draws flashlight on the left side of the room
+            var grd2 = context.createRadialGradient(xMirror, (maze.length * height) / 2 + width / 2, 15, xMirror, (maze.length * height) / 2 + width / 2, flashlightRadius);
+            grd2.addColorStop(0, 'rgba(0,0,0,' + yOpacity + ')');
+            grd2.addColorStop(1, 'rgba(0,0,0,1)');
+            context.fillStyle = grd2;
+            context.fillRect(0, height, (width * maze[0].length) / 2 + 2, height * maze.length);
+        }
     }
 }
 
@@ -667,7 +639,7 @@ function drawWall(i, j) {
 
 }
 
-function restartGame(){
+function restartGame() {
     // Show the restart game prompt
     var j = replayPos[0];
     var i = replayPos[1];
@@ -677,7 +649,7 @@ function restartGame(){
     context.fillText("PRESS SPACE TO PLAY AGAIN", (j + 1) * width, (i + 1 - tol) * height);
 }
 
-function ghostCollision(){
+function ghostCollision() {
 
     ghostList.forEach(ghost => {
         var pacmanRightSide = pacman.xCanvas + pacman.width;
@@ -691,10 +663,10 @@ function ghostCollision(){
         var ghostBotSide = ghost.yCanvas + ghost.height;
 
         if (pacmanRightSide >= ghostLeftSide && pacmanRightSide < ghostRightSide && pacmanTopSide == ghostTopSide ||
-            pacmanLeftSide <= ghostRightSide && pacmanLeftSide > ghostLeftSide && pacmanTopSide == ghostTopSide   ||
-            pacmanBotSide >= ghostTopSide && pacmanBotSide < ghostBotSide && pacmanLeftSide == ghostLeftSide      ||
-            pacmanTopSide <= ghostBotSide && pacmanTopSide > ghostTopSide && pacmanLeftSide == ghostLeftSide){ // check for collisions
-                gameLost = true;
+            pacmanLeftSide <= ghostRightSide && pacmanLeftSide > ghostLeftSide && pacmanTopSide == ghostTopSide ||
+            pacmanBotSide >= ghostTopSide && pacmanBotSide < ghostBotSide && pacmanLeftSide == ghostLeftSide ||
+            pacmanTopSide <= ghostBotSide && pacmanTopSide > ghostTopSide && pacmanLeftSide == ghostLeftSide) { // check for collisions
+            gameLost = true;
         }
 
     });

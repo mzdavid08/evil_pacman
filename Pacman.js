@@ -1,3 +1,10 @@
+/*
+    Team: Trifecta
+    CSCI 445 Web Programming
+    Section B
+
+    Evil Pac-Man
+*/
 
 class Pacman {
 
