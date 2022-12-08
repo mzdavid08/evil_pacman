@@ -25,7 +25,7 @@ var wall_straight = new Image();
 var wall_end = new Image();
 var wall_corner = new Image();
 var wall_tee = new Image();
-var wall_plus = new Image();
+var wall_plus = new Image()
 
 // Create game elements
 var game, maze, width, height, context, maze_p, scorePos, replayPos, shortcutY;
@@ -48,6 +48,7 @@ var gameStarted = false;
 var dirs = ['left', 'right', 'up', 'down'];
 var ghosts = ['red', 'orange', 'blue', 'pink'];
 var ghost_img = new Array(4).fill(new Image()).map(() => new Array(4).fill(new Image()));
+var music = new Audio('music.mp3');
 
 for (var i = 0; i < 4; i++){
   for (var j = 0; j < 4; j++){
@@ -115,6 +116,7 @@ function start() {
     setTimeout(movePacman(pacmanDir), 1000)
 
     // Animate the movement
+    music.play();
     animate();
 }
 
@@ -476,12 +478,16 @@ function checkShortcut(object) {
 // Game won!
 function gameWon() {
     // TODO: Game win functionality
+    music.pause();
+    music.currentTime = 0;
     gameWin = true;
 }
 
 // Game over
 function gameOver() {
     // TODO: Game loss functionality
+    music.pause();
+    music.currentTime = 0;
     gameLost = true;
 }
 
@@ -673,7 +679,7 @@ function ghostCollision() {
             pacmanLeftSide <= ghostRightSide && pacmanLeftSide > ghostLeftSide && pacmanTopSide == ghostTopSide ||
             pacmanBotSide >= ghostTopSide && pacmanBotSide < ghostBotSide && pacmanLeftSide == ghostLeftSide ||
             pacmanTopSide <= ghostBotSide && pacmanTopSide > ghostTopSide && pacmanLeftSide == ghostLeftSide) { // check for collisions
-            gameLost = true;
+            gameOver();
         }
 
     });
